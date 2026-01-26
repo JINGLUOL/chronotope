@@ -1,25 +1,12 @@
-import abc
 from abc import abstractmethod
-from dataclasses import dataclass
-from typing import Any
-
-import pygame
-from pygame.sprite import Sprite
 
 from global_manager import log
-from pygame_component import ContextMenu
-from pygame_manager import screen, left_mouse_up_handles, right_mouse_up_handles, finally_handles, framerate
+from global_manager import screen
 from .HollowKnightAnimation import HollowKnightAnimation, UNDEFINED, create_ani_machine
+from ..SpriteAbs import SpriteAbs
 
 
-@dataclass
-class SpriteStatus:
-    FOLLOW = 'follow'
-    CALL = 'call'
-    pass
-
-
-class HollowKnightSpriteAbs(Sprite, abc.ABC):
+class HollowKnightSpriteAbs(SpriteAbs):
 
     def __init__(
             self,
@@ -44,8 +31,11 @@ class HollowKnightSpriteAbs(Sprite, abc.ABC):
         """ 过渡动画类 """
         self.pre_trans_ani: str = UNDEFINED
         """ 上一个过渡动画 """
-        self.sprite_state: str = SpriteStatus.FOLLOW
-        """ 精灵状态 """
+        self.delay: float = 81
+        # self.delay: int = 300
+        """ 更新时间间隔 """
+        self.last_update: float = 0
+        """ 最后更新时间 """
 
         # 精灵跟随参数
         self.follow_pass_range: int = 373
@@ -55,44 +45,26 @@ class HollowKnightSpriteAbs(Sprite, abc.ABC):
 
         # 绘制参数
         self.image = self.animation.frames[0]
-        """ 超类绘制图 """
-        self.x = screen.get_width() - self.image.get_width() - self.animation.current_rect.x - 30
+        """ 绘制图 """
+        self.sprite_x = screen.get_width() - self.image.width() - self.animation.current_rect.x - 30
         """ X 轴值 """
-        self.y = screen.get_height() - self.image.get_height() - self.animation.current_rect.y - 50
+        self.sprite_y = screen.get_height() - self.image.height() - self.animation.current_rect.y - 50
         """ Y 轴值 """
         self.flip_x = False
         """ 左右翻转 """
         self.flip_y = False
         """ 上下翻转 """
-        self.rect = pygame.rect.Rect(0, 0, 0, 0)
-        """ 更新位置 """
-        self.delay: float = framerate*1.35
-        # self.delay: int = 300
-        """ 更新时间间隔 """
-        self.last_update: int = pygame.time.get_ticks()
-        """ 最后更新时间 """
 
         # 额外绘制参数
         self.flip_x_changed: bool = False
         self.flip_y_changed: bool = False
         """ 绘制参数变更 """
 
-        # 初始化菜单
-        self.menu = ContextMenu()
-        """ 精灵右键菜单 """
-        self._setup_menu()
+        # 初始化图片
+        self.setPixmap(self.image)
 
-        self.sprite_behavior_map = {
-            SpriteStatus.FOLLOW: self._sprite_follow_handle,
-            SpriteStatus.CALL: self._sprite_call_handle,
-        }
-        finally_handles.append(self._sprite_behavior_handle)
-
+        # 输出精灵的所有状态
         log(self.sprite_name, self.animation_machine.keys())
-        pass
-
-    def _sprite_behavior_handle(self):
-        self.sprite_behavior_map[self.sprite_state]()
         pass
 
     @abstractmethod
@@ -101,43 +73,6 @@ class HollowKnightSpriteAbs(Sprite, abc.ABC):
 
     @abstractmethod
     def _sprite_call_handle(self):
-        pass
-
-    def _setup_menu(self):
-        """ 设置菜单项 """
-
-        def def1():
-            self.sprite_state = SpriteStatus.FOLLOW
-            log('switch sprite state:', self.sprite_state)
-            pass
-
-        self.menu.add_item("follow", def1)
-
-        def def2():
-            self.sprite_state = SpriteStatus.CALL
-            log('switch sprite state:', self.sprite_state)
-            pass
-
-        self.menu.add_item("call", def2)
-
-        # 添加点击事件
-        left_mouse_up_handles.append(self._left_mouse_up_event)
-        right_mouse_up_handles.append(self._right_mouse_up_event)
-        pass
-
-    def _left_mouse_up_event(self):
-        self.menu.handle_click(pygame.mouse.get_pos())
-        pass
-
-    def _right_mouse_up_event(self):
-        mouse_pos = pygame.mouse.get_pos()
-        if self.animation.current_rect.collidepoint(
-            mouse_pos[0] - self.x, mouse_pos[1] - self.y
-        ):
-            if self.menu.visible:
-                self.menu.hide()
-            else:
-                self.menu.show(mouse_pos)
         pass
 
     def _reset_flip_args(self):
@@ -173,17 +108,10 @@ class HollowKnightSpriteAbs(Sprite, abc.ABC):
         # log('set ani', self.animation.name)
         pass
 
-    def update(self, *args: Any, **kwargs: Any):
-        # 判断下一帧切入时机
-        next_frame: bool = False
-        if pygame.time.get_ticks() - self.last_update > self.delay:
-            self.last_update = pygame.time.get_ticks()
-            next_frame = True
-            pass
-
-        self.menu.draw(screen)
+    def update_anim(self, current_time: float):
         # 切入下一帧
-        if next_frame:
+        if current_time - self.last_update > self.delay:
+            self.last_update = current_time
             # 过渡动画
             if self.transition_ani:
                 self.image = self.transition_ani.get_frame()
@@ -196,15 +124,12 @@ class HollowKnightSpriteAbs(Sprite, abc.ABC):
             else:
                 self.image = self.animation.get_frame()
                 pass
-            # 根据当前动画参数对帧进行修正
-            self.image = pygame.transform.flip(self.image, self.flip_x, self.flip_y)
+            # 切换帧图
+            self.setPixmap(self.image)
             pass
 
-        # 更新绘制的位置 | 范围
-        self.rect.update(
-            self.x, self.y,
-            self.image.get_width(), self.image.get_height()
-        )
+        # 更新绘制的位置
+        self.setPos(self.sprite_x, self.sprite_y)
         pass
 
     @abstractmethod

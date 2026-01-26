@@ -2,12 +2,13 @@ import os
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import AnyStr
 
-import pygame
-from pygame import Surface, Rect
+import numpy as np
+from PIL import Image
+from PyQt5.QtGui import QPixmap
 
-from global_manager import config
 from util import str_to_bool
-from util.image import replace_color_numpy, find_rgb_box_pil
+from util.geometry import Rect
+from util.image import find_rgb_box_pil, clear_colors_numpy, pil_to_pixmap
 
 UNDEFINED: str = 'UNDEFINED'
 
@@ -27,7 +28,7 @@ class HollowKnightAnimation:
         ''' 总帧数 '''
 
         """ 帧参数 """
-        self.frames: list[Surface] = []
+        self.frames: list[QPixmap] = []
         ''' 帧列表 '''
         self.current_frame = 0
         ''' 当前帧 '''
@@ -40,10 +41,10 @@ class HollowKnightAnimation:
 
         """ 角色位置判定范围 """
         self.rects: list[Rect] = []
-        self.current_rect: Rect = pygame.Rect(0, 0, 0, 0)
+        self.current_rect: Rect = Rect((0, 0), (0, 0))
         pass
 
-    def get_frame(self) -> Surface:
+    def get_frame(self) -> QPixmap:
         """ 获取帧 """
         self.current_frame %= self.sprites
 
@@ -78,21 +79,18 @@ class HollowKnightAnimation:
                 setattr(self, key, value)
                 pass
             elif frames_split_str in line:
-                surface = pygame.image.load(
+                image = Image.open(
                     f"{ani_root}\\{line.split(frames_split_str)[1]}"
-                ).convert_alpha()
+                ).convert('RGBA')
+                pixels = np.array(image)
+                # 处理红框
+                image = clear_colors_numpy(pixels, (255, 0, 0))
                 # 检索角色在图片上的范围坐标
-                self.rects.append(pygame.Rect(find_rgb_box_pil(surface)))
-                # 处理消失色，处理红框
-                replace_color_numpy(
-                    surface,
-                    (255, 0, 0),
-                    old_color=config.TRANSPARENT_COLOR,
-                    new_color=config.REPLACE_COLOR,
-
-                )
+                tl, br = find_rgb_box_pil(pixels)
+                self.rects.append(Rect(tl, (br[0] - tl[0], br[1] - tl[1])))
                 # 添加到帧序列
-                self.frames.append(surface)
+                self.frames.append(pil_to_pixmap(image))
+                del pixels
                 pass
             pass
         self.consistent_sprite_size = str_to_bool(self.consistent_sprite_size)

@@ -1,15 +1,22 @@
-import abc
+from abc import abstractmethod
 
 from global_manager import resources
-from .Hornet_anim_maps import HornetAniStatus, transition_before_anim_map, transition_after_anim_map, \
-    transition_turn_anim_map
+from .Hornet_anim_maps import *
 from ..HollowKnightSpriteAbs import HollowKnightSpriteAbs
 
 
-class HornetSpriteAbs(HollowKnightSpriteAbs, abc.ABC):
+class HornetSpriteAbs(HollowKnightSpriteAbs):
 
     def __init__(self, sprite_name: str, setup_ani_state: str):
         super().__init__(sprite_name, setup_ani_state, resources.Hornet)
+        pass
+
+    @abstractmethod
+    def _sprite_follow_handle(self):
+        pass
+
+    @abstractmethod
+    def _sprite_call_handle(self):
         pass
 
     def switch_animation(self, state: str):
@@ -37,18 +44,18 @@ class HornetSpriteAbs(HollowKnightSpriteAbs, abc.ABC):
 
     def run_move(self):
         if self.flip_x:
-            self.x += 10
+            self.sprite_x += 10
         else:
-            self.x -= 10
+            self.sprite_x -= 10
             pass
         pass
 
     def up_move(self):
-        self.y -= 10
+        self.sprite_y -= 10
         pass
 
     def down_move(self):
-        self.y += 13
+        self.sprite_y += 13
         pass
 
     def idle(self):
@@ -71,3 +78,5 @@ class HornetSpriteAbs(HollowKnightSpriteAbs, abc.ABC):
     def jump(self):
         self.switch_animation(HornetAniStatus.Jump)
         pass
+
+    pass

@@ -1,21 +1,21 @@
-import abc
-from dataclasses import dataclass
+from abc import abstractmethod
 
-from .Knight_anim_maps import KnightAniStatus, transition_anim_map, turn_transition_anim_map
+from .Knight_anim_maps import *
 from ..HollowKnightSpriteAbs import HollowKnightSpriteAbs
 
 
-@dataclass
-class SpriteStatus:
-    FOLLOW = 'follow'
-    CALL = 'call'
-    pass
-
-
-class KnightSpriteAbs(HollowKnightSpriteAbs, abc.ABC):
+class KnightSpriteAbs(HollowKnightSpriteAbs):
 
     def __init__(self, sprite_name: str, resources_root: str):
         super().__init__(sprite_name, KnightAniStatus.IDLE, resources_root)
+        pass
+
+    @abstractmethod
+    def _sprite_follow_handle(self):
+        pass
+
+    @abstractmethod
+    def _sprite_call_handle(self):
         pass
 
     def switch_animation(self, state: str):
@@ -40,23 +40,23 @@ class KnightSpriteAbs(HollowKnightSpriteAbs, abc.ABC):
 
     def walk_move(self):
         if self.flip_x:
-            self.x += 3
+            self.sprite_x += 3
         else:
-            self.x -= 3
+            self.sprite_x -= 3
         pass
 
     def run_move(self):
         if self.flip_x:
-            self.x += 7
+            self.sprite_x += 7
         else:
-            self.x -= 7
+            self.sprite_x -= 7
         pass
 
     def up_move(self):
-        self.y -= 7
+        self.sprite_y -= 7
 
     def down_move(self):
-        self.y += 13
+        self.sprite_y += 13
 
     def idle(self):
         self.switch_animation(KnightAniStatus.IDLE)
@@ -106,5 +106,6 @@ class KnightSpriteAbs(HollowKnightSpriteAbs, abc.ABC):
 
     def look_down(self):
         self.switch_animation(KnightAniStatus.LookDown)
+        pass
 
     pass

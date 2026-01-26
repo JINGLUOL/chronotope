@@ -3,13 +3,20 @@ from screeninfo import get_monitors
 
 class Screen:
 
-    def __init__(self, s_id, width, height, position):
+    def __init__(self, s_id, x, y, width, height):
         self.id = s_id
+        self.x = x
+        self.y = y
         self.width = width
         self.height = height
-        self.position = position
         self.scale: float = 1.0
         pass
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
 
     pass
 
@@ -21,8 +28,8 @@ def get_screens() -> dict[int, Screen]:
     for idx, monitor in enumerate(monitor_list):
         screen = Screen(
             idx + 1,
+            monitor.x, monitor.y,
             monitor.width, monitor.height,
-            (monitor.x, monitor.y)
         )
         screens[screen.id] = screen
         pass

@@ -1,48 +1,53 @@
 import numpy as np
-import pygame
-from pygame import Surface
+from PIL import Image
+from PyQt5.QtGui import QImage, QPixmap
 
 
-def replace_color_numpy(
-        surface: Surface,
-        *clear_colors,
-        old_color = None, new_color = None,
-):
+def clear_colors_numpy(pixels, *clear_colors):
     """
     使用NumPy快速替换颜色
-    :param surface: pygame的绘制对象
+    :param pixels: 像素数组
     :param clear_colors: 待清除的颜色
+    :return:
+    """
+
+    # 创建透明遮罩并替换指定颜色
+    if len(clear_colors) > 0:
+        for clear_color in clear_colors:
+            mask = np.all(pixels[:, :, :3] == clear_color[:3], axis=2)
+            pixels[mask, 3] = 0
+            pass
+        pass
+
+    # 转换回PIL图像
+    result_image = Image.fromarray(pixels, 'RGBA')
+
+    # 平滑处理
+    # result_image = result_image.filter(ImageFilter.SMOOTH)
+
+    return result_image
+
+
+def replace_color_numpy(pixels, old_color=None, new_color=None):
+    """
+    使用NumPy快速替换颜色
+    :param pixels: 像素数组
     :param old_color: 待替换的颜色
     :param new_color: 替换后的颜色
     :return:
     """
-    # 将surface转换为NumPy数组
-    pixels = pygame.surfarray.pixels3d(surface)
 
     # 创建遮罩并替换颜色
     if old_color and new_color:
         # 遍历每个像素
-        mask = np.all(pixels == old_color[:3], axis=2)
+        mask = np.all(pixels[:, :, :3] == old_color[:3], axis=2)
         pixels[mask] = new_color[:3]
         pass
 
-    # 创建透明遮罩并替换指定颜色
-    if len(clear_colors) > 0:
-        pixels_alpha = pygame.surfarray.pixels_alpha(surface)
-        for clear_color in clear_colors:
-            mask = np.all(pixels == clear_color[:3], axis=2)
-            pixels_alpha[mask] = 0
-            pass
-        pass
-
-
-    # 注意：surfarray.pixels3d会自动锁定surface
-    # 操作完成后，删除对pixels的引用以解锁
-    del pixels
     pass
 
 
-def find_rgb_box_pil(surface: Surface):
+def find_rgb_box_pil(pixels):
     """
     使用PIL检测三原色方框
 
@@ -53,7 +58,6 @@ def find_rgb_box_pil(surface: Surface):
     返回:
         (x1, y1, x2, y2): 左上角和右下角坐标
     """
-    pixels = pygame.surfarray.pixels3d(surface)
     # 分离RGB通道
     red_channel = pixels[:, :, 0]
     green_channel = pixels[:, :, 1]
@@ -71,11 +75,41 @@ def find_rgb_box_pil(surface: Surface):
         return (0, 0), (0, 0)
 
     # 计算边界
-    x_coords = red_coords[:, 0]
-    y_coords = red_coords[:, 1]
+    x_coords = red_coords[:, 1]
+    y_coords = red_coords[:, 0]
 
     top_left = (np.min(x_coords), np.min(y_coords))
     bottom_right = (np.max(x_coords), np.max(y_coords))
 
-    del pixels
     return top_left, bottom_right
+
+
+def pil_to_pixmap(pil_image):
+    """将 PIL Image 转换为 QPixmap"""
+    # 转换图像模式为 RGB 或 RGBA
+    if pil_image.mode == "RGB":
+        r, g, b = pil_image.split()
+        pil_image = Image.merge("RGB", (b, g, r))
+        i_format = QImage.Format_RGB888
+        bytes_per_pixel = 3
+    elif pil_image.mode == "RGBA":
+        r, g, b, a = pil_image.split()
+        pil_image = Image.merge("RGBA", (b, g, r, a))
+        i_format = QImage.Format_RGBA8888
+        bytes_per_pixel = 4
+    else:
+        pil_image = pil_image.convert("RGB")
+        r, g, b = pil_image.split()
+        pil_image = Image.merge("RGB", (b, g, r))
+        i_format = QImage.Format_RGB888
+        bytes_per_pixel = 3
+
+    # 获取图像数据
+    data = pil_image.tobytes("raw", pil_image.mode)
+
+    # 创建 QImage
+    width, height = pil_image.size
+    q_image = QImage(data, width, height, width * bytes_per_pixel, i_format)
+
+    # 转换为 QPixmap
+    return QPixmap.fromImage(q_image)

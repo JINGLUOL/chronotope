@@ -1,4 +1,4 @@
-__all__ = ['config', 'resources', 'log']
+__all__ = ['config', 'resources', 'screen', 'log']
 
 import atexit
 import os
@@ -104,6 +104,7 @@ class Config:
 
 
 config: Config = Config()
+screen: Screen = config.screen_root
 
 
 def log(*message: Any) -> None:
