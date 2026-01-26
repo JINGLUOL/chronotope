@@ -34,54 +34,26 @@ class KnightSprite(KnightSpriteAbs):
 
     def _sprite_follow_handle(self):
         # 获取鼠标坐标
-        mouse_x = config.mouse_x
-        mouse_y = config.mouse_y
+        x = config.mouse_x - self.sprite_x
+        y = config.mouse_y - self.sprite_y
 
-        rect = self.animation.current_rect
+        plus_rect = self.animation.current_rect + \
+                    (
+                            self.animation_state in wait_status and
+                            self.follow_pass_range or
+                            self.follow_space_range
+                    )
 
-        top = self.sprite_y + rect.y - mouse_y
-        left = self.sprite_x + rect.x - mouse_x
-        bottom = self.sprite_y + rect.h - mouse_y
-        right = self.sprite_x + rect.w - mouse_x
-        move_range = self.animation_state in wait_status and self.follow_pass_range or self.follow_space_range
-        if max(top, left) > move_range or min(bottom, right) < -move_range:
-            if top > 0:
-                self.up()
-                if self.animation.in_loop:
-                    if left > 0:
-                        self._set_flip_x(False)
-                        self.walk_move()
-                    elif right < 0:
-                        self._set_flip_x(True)
-                        self.walk_move()
-                        pass
-                    pass
-                pass
-            elif bottom < 0:
-                self.down()
-                if self.animation.in_loop:
-                    if left > 0:
-                        self._set_flip_x(False)
-                        self.walk_move()
-                    elif right < 0:
-                        self._set_flip_x(True)
-                        self.walk_move()
-                        pass
-                    pass
-                pass
-            elif left > 0:
-                self.left_walk()
-            elif right < 0:
-                self.right_walk()
-            pass
-        else:
-            if left > 0:
+        # 无需移动的行为块
+        if plus_rect.include(x, y):
+            top, bottom, left, right = self.animation.current_rect.point_directions(x, y)
+            if left:
                 self._set_flip_x(False)
-            elif right < 0:
+            elif right:
                 self._set_flip_x(True)
-            if top > 0:
+            if top:
                 self.look_up()
-            elif bottom < 0:
+            elif bottom:
                 self.look_down()
             else:
                 if self.sprite_y < screen.get_height() / 2:
@@ -90,6 +62,44 @@ class KnightSprite(KnightSpriteAbs):
                     self.idle()
                 pass
             pass
+        # 需要移动的行为块
+        else:
+            # print('精灵矩形', repr(self.animation.current_rect))
+            # print('增值矩形', repr(plus_rect))
+            # print('坐标差值', x, y)
+            # print('当前坐标', self.x(), self.y())
+            # print('鼠标坐标', config.mouse_x, config.mouse_y)
+            top, bottom, left, right = plus_rect.point_directions(x, y)
+            if top:
+                self.up()
+                if self.animation.in_loop:
+                    if left:
+                        self._set_flip_x(False)
+                        self.walk_move()
+                    elif right:
+                        self._set_flip_x(True)
+                        self.walk_move()
+                        pass
+                    pass
+                pass
+            elif bottom:
+                self.down()
+                if self.animation.in_loop:
+                    if left:
+                        self._set_flip_x(False)
+                        self.walk_move()
+                    elif right:
+                        self._set_flip_x(True)
+                        self.walk_move()
+                        pass
+                    pass
+                pass
+            elif left:
+                self.left_walk()
+            elif right:
+                self.right_walk()
+            pass
+
         pass
 
     pass

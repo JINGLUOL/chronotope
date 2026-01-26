@@ -40,15 +40,15 @@ class HollowKnightSpriteAbs(SpriteAbs):
         # 精灵跟随参数
         self.follow_pass_range: int = 373
         """ 跟随无效范围 """
-        self.follow_space_range: int = 99
+        self.follow_space_range: int = 233
         """ 跟随距离范围 """
 
         # 绘制参数
         self.image = self.animation.frames[0]
         """ 绘制图 """
-        self.sprite_x = screen.get_width() - self.image.width() - self.animation.current_rect.x - 30
+        self.sprite_x = screen.get_width() - self.animation.current_rect.x - self.animation.current_rect.w
         """ X 轴值 """
-        self.sprite_y = screen.get_height() - self.image.height() - self.animation.current_rect.y - 50
+        self.sprite_y = screen.get_height() - self.animation.current_rect.y - self.animation.current_rect.h
         """ Y 轴值 """
         self.flip_x = False
         """ 左右翻转 """
@@ -125,7 +125,10 @@ class HollowKnightSpriteAbs(SpriteAbs):
                 self.image = self.animation.get_frame()
                 pass
             # 切换帧图
-            self.setPixmap(self.image)
+            self.setPixmap(self.image.transformed(self.transform().scale(
+                self.flip_x and -1 or 1,
+                self.flip_y and -1 or 1
+            )))
             pass
 
         # 更新绘制的位置

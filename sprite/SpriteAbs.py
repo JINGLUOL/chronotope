@@ -51,7 +51,7 @@ class SpriteAbs(QGraphicsPixmapItem):
         sprite_follow = QAction("跟随", self.menu)
         sprite_follow.triggered.connect(def1)
 
-        sprite_call = QAction("命令", self.menu)
+        sprite_call = QAction("操控", self.menu)
         sprite_call.triggered.connect(def2)
 
         self.menu.addAction(sprite_idle)

@@ -41,7 +41,7 @@ class HollowKnightAnimation:
 
         """ 角色位置判定范围 """
         self.rects: list[Rect] = []
-        self.current_rect: Rect = Rect((0, 0), (0, 0))
+        self.current_rect: Rect = Rect(0, 0, 0, 0)
         pass
 
     def get_frame(self) -> QPixmap:
@@ -87,7 +87,7 @@ class HollowKnightAnimation:
                 image = clear_colors_numpy(pixels, (255, 0, 0))
                 # 检索角色在图片上的范围坐标
                 tl, br = find_rgb_box_pil(pixels)
-                self.rects.append(Rect(tl, (br[0] - tl[0], br[1] - tl[1])))
+                self.rects.append(Rect.from_pos_and_size(tl, (br[0] - tl[0], br[1] - tl[1])))
                 # 添加到帧序列
                 self.frames.append(pil_to_pixmap(image))
                 del pixels
