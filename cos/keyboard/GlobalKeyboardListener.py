@@ -63,7 +63,7 @@ class GlobalKeyboardListener:
         """检查热键是否被触发"""
         current_keys = frozenset(self.pressed_keys)
         for key_combo, callback in self.press_hotkeys.items():
-            if key_combo.issubset(current_keys): callback()
+            if key_combo == current_keys: callback()
             pass
         pass
 
@@ -71,7 +71,7 @@ class GlobalKeyboardListener:
         """检查热键是否被触发"""
         current_keys = frozenset(self.pressed_keys)
         for key_combo, callback in self.release_hotkeys.items():
-            if key_combo.issubset(current_keys): callback()
+            if key_combo == current_keys: callback()
             pass
         pass
 

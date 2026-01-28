@@ -24,7 +24,7 @@ class TransparentWindow(QMainWindow):
         self.hide_anim.setDuration(300)
         self.hide_anim.setStartValue(1.0)
         self.hide_anim.setEndValue(0.0)
-        self.hide_anim.finished.connect(super().hide)
+        self.hide_anim.finished.connect(self.hide)
 
         # 创建中央部件
         self.central_widget = QWidget(self)
@@ -46,17 +46,16 @@ class TransparentWindow(QMainWindow):
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)  # 允许透明绘制
         pass
 
-    def show_window(self):
-        """显示主窗口"""
-        self.show()
-        self.raise_()  # 将窗口提到前面
-        self.activateWindow()  # 激活窗口
+    def toggle_visibility(self):
+        if self.isVisible():
+            self.close()
+        else:
+            self.show()
+            pass
         pass
 
     def showEvent(self, event):
-        if not self.isVisible():
-            self.show_anim.start()
-            pass
+        self.show_anim.start()
         pass
 
     def closeEvent(self, a0):

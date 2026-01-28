@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor, QLinearGradient
 from util.pyqt_util import create_gradient_pixmap
 from .PianoKey import PianoKey
 from .PianoSound import PianoSound
-from ..GraphicsTransparentWindow import GraphicsTransparentWindow
+from ..base.GraphicsTransWindow import GraphicsTransWindow
 
 
 # 玫瑰金 (183, 110, 121)
@@ -13,7 +13,7 @@ from ..GraphicsTransparentWindow import GraphicsTransparentWindow
 # 古金色 (207, 181, 59)
 # 暗金色 (184, 134, 11)
 # 亮金色 (255, 223, 0)
-class PianoWindow(GraphicsTransparentWindow):
+class PianoWindow(GraphicsTransWindow):
 
     def __init__(self, x: int, y: int, w: int, h: int, octaves: int = 3):
         super().__init__(x, y, w, h)
@@ -68,7 +68,7 @@ class PianoWindow(GraphicsTransparentWindow):
         # 音检索
         self.timer = QTimer()
         self.timer.timeout.connect(self.play_piano)
-        self.timer.start(16)  # 60FPS
+        self.timer.setInterval(16)  # 60FPS
 
         self._init_piano_keys()
         pass
@@ -178,6 +178,16 @@ class PianoWindow(GraphicsTransparentWindow):
         for piano_sound in self.piano_sounds:
             piano_sound.terminate(current_time)
             pass
+        pass
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.timer.start()
+        pass
+
+    def closeEvent(self, a0):
+        super().closeEvent(a0)
+        self.timer.stop()
         pass
 
     pass

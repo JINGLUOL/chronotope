@@ -1,5 +1,5 @@
-__all__ = ['TransparentWindow', 'SpritesWindow', 'PianoWindow']
+__all__ = ['ListMenuWindow', 'SpritesWindow', 'PianoWindow']
 
-from .TransparentWindow import TransparentWindow
 from .SpritesWindow import SpritesWindow
 from .piano_window.PianoWindow import PianoWindow
+from .ListMenuWindow import ListMenuWindow

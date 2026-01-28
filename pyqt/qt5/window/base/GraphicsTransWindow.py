@@ -3,10 +3,10 @@ from PyQt5.QtGui import QPainter, QBrush
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 
 
-class GraphicsTransparentWindow(QGraphicsView):
+class GraphicsTransWindow(QGraphicsView):
 
     def __init__(self, x: int, y: int, w: int, h: int):
-        super(GraphicsTransparentWindow, self).__init__()
+        super(GraphicsTransWindow, self).__init__()
         self.setGeometry(x, y, w, h)
 
         self._init_window()
@@ -25,7 +25,7 @@ class GraphicsTransparentWindow(QGraphicsView):
         self.hide_anim.setDuration(300)
         self.hide_anim.setStartValue(1.0)
         self.hide_anim.setEndValue(0.0)
-        self.hide_anim.finished.connect(super().hide)
+        self.hide_anim.finished.connect(self.hide)
 
         # 创建场景
         self.scene = QGraphicsScene(0, 0, w, h)
@@ -71,10 +71,22 @@ class GraphicsTransparentWindow(QGraphicsView):
         super().paintEvent(event)
         pass
 
-    def showEvent(self, event):
-        if not self.isVisible():
-            self.show_anim.start()
+    def toggle_visibility(self):
+        if self.isVisible():
+            self.close()
+        else:
+            self.show()
             pass
+        pass
+
+    def show(self):
+        super().show()
+        self.raise_()  # 将窗口提到前面
+        self.activateWindow()  # 激活窗口
+        pass
+
+    def showEvent(self, event):
+        self.show_anim.start()
         pass
 
     def closeEvent(self, a0):

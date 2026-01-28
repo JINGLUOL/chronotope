@@ -1,13 +1,12 @@
 import pygame
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QPainter
+from PyQt5.QtCore import QTimer
 
-from .GraphicsTransparentWindow import GraphicsTransparentWindow
 from sprite import SpriteAbs
 from sprite.hollow_knight import KnightSprite, HornetSprite
+from .base import GraphicsTransWindow
 
 
-class SpritesWindow(GraphicsTransparentWindow):
+class SpritesWindow(GraphicsTransWindow):
 
     def __init__(self, x: int, y: int, w: int, h: int):
         super().__init__(x, y, w, h)
@@ -25,13 +24,13 @@ class SpritesWindow(GraphicsTransparentWindow):
         # 游戏循环
         self.timer = QTimer()
         self.timer.timeout.connect(self.game_loop)
-        self.timer.start(self.delay)  # 60FPS
+        self.timer.setInterval(self.delay)  # 60FPS
 
         # 帧率计算
         self.frame_count = 0
         self.fps_timer = QTimer()
         self.fps_timer.timeout.connect(self.update_fps)
-        self.fps_timer.start(1000)
+        self.fps_timer.setInterval(1000)
         pass
 
     def _add_sprite(self, sprite: SpriteAbs):
@@ -77,6 +76,18 @@ class SpritesWindow(GraphicsTransparentWindow):
     def focusOutEvent(self, event):
         # 窗口丢失焦点后清空 按键按下的记录列表
         self.keys_pressed.clear()
+        pass
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.timer.start()
+        self.fps_timer.start()
+        pass
+
+    def closeEvent(self, a0):
+        super().closeEvent(a0)
+        self.timer.stop()
+        self.fps_timer.stop()
         pass
 
     pass
