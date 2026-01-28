@@ -47,6 +47,7 @@ turn_transition_anim_map = [
     KnightAniStatus.IDLE,
     KnightAniStatus.IDLE_WIND,
     KnightAniStatus.WALK,
+    KnightAniStatus.RUN,
     KnightAniStatus.LookUp,
     KnightAniStatus.LookDown,
 ]

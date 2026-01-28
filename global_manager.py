@@ -143,8 +143,8 @@ class Resource:
         if not os.path.exists(self.data_folder):
             os.makedirs(self.data_folder)
 
-        self.Knight = exe_path('resources\\HollowKnight\\Knight')
-        self.Hornet = exe_path('resources\\HollowKnight\\Hornet')
+        self.Knight = exe_path('resources\\Sprites\\HollowKnight\\Knight')
+        self.Hornet = exe_path('resources\\Sprites\\HollowKnight\\Hornet')
         pass
 
     def output_log(self, subfolder: str, filename: str):

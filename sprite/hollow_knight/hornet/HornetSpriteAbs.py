@@ -12,6 +12,10 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
         pass
 
     @abstractmethod
+    def _sprite_idle_handle(self):
+        pass
+
+    @abstractmethod
     def _sprite_follow_handle(self):
         pass
 

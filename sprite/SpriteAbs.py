@@ -22,6 +22,9 @@ class SpriteAbs(QGraphicsPixmapItem):
         """ 精灵右键菜单 """
         self._init_context_menu()
 
+        self.keys_pressed: set[int] = set()
+        """ 键盘按下事件 """
+
         # 精灵行为钩子映射表
         self.sprite_behavior_map = {
             SpriteStatus.IDLE: self._sprite_idle_handle,
@@ -72,6 +75,7 @@ class SpriteAbs(QGraphicsPixmapItem):
         self.sprite_behavior_map[self.sprite_state]()
         pass
 
+    @abstractmethod
     def _sprite_idle_handle(self):
         pass
 

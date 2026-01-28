@@ -1,3 +1,5 @@
+from PyQt5.QtCore import Qt
+
 from global_manager import config, resources, screen
 from .KnightSpriteAbs import KnightSpriteAbs
 from .Knight_anim_maps import wait_status
@@ -9,27 +11,31 @@ class KnightSprite(KnightSpriteAbs):
         super().__init__("Knight", resources.Knight)
         pass
 
+    def _sprite_idle_handle(self):
+        self.idle()
+        pass
+
     def _sprite_call_handle(self):
-        # keys = pygame.key.get_pressed()
-        # if keys[pygame.K_k]:
-        #     if keys[pygame.K_s]:
-        #         self.down()
-        #     else:
-        #         self.up()
-        #     if self.animation.in_loop:
-        #         if keys[pygame.K_a]:
-        #             self._set_flip_x(False)
-        #             self.walk_move()
-        #         elif keys[pygame.K_d]:
-        #             self._set_flip_x(True)
-        #             self.walk_move()
-        # elif keys[pygame.K_a]:
-        #     self.left_run()
-        # elif keys[pygame.K_d]:
-        #     self.right_run()
-        # else:
-        #     self.idle()
-        #     pass
+        if Qt.Key_K in self.keys_pressed:
+            if Qt.Key_S in self.keys_pressed:
+                self.down()
+            else:
+                self.up()
+            if self.animation.in_loop:
+                if Qt.Key_A in self.keys_pressed:
+                    self._set_flip_x(False)
+                    self.walk_move()
+                elif Qt.Key_D in self.keys_pressed:
+                    self._set_flip_x(True)
+                    self.walk_move()
+        elif Qt.Key_A in self.keys_pressed:
+            self.left_run()
+        elif Qt.Key_D in self.keys_pressed:
+            self.right_run()
+        else:
+            self.idle()
+            pass
+
         pass
 
     def _sprite_follow_handle(self):

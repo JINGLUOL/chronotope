@@ -105,12 +105,24 @@ class HollowKnightAnimation:
     pass
 
 
+resources = {}
+""" 空洞骑士资源加载缓存表 """
+
+
 def create_ani_machine(ani_root: str) -> dict[str, HollowKnightAnimation]:
     """ 创建动画机 """
+    # 资源缓存字典存在时直接返回，避免重复读取资源
+    if ani_root in resources:
+        return resources[ani_root]
+
+    # 动画机对象
     animation_machine = {}
+    # 资源配置根目录
     configs_root = f"{ani_root}\\config"
 
+    # 初始化动画机器
     def work(config_file):
+        """ 根据 资源配置文件 进行初始化状态 """
         with open(f"{configs_root}\\{config_file}", 'r', encoding='utf-8') as f:
             animation = HollowKnightAnimation()
             animation.load_animation(ani_root, f.readlines())
@@ -118,10 +130,13 @@ def create_ani_machine(ani_root: str) -> dict[str, HollowKnightAnimation]:
             pass
         pass
 
-    """ 初始化动画机器 """
+    """ 调用线程池初始化，避免加载时间冗长 """
     with ThreadPoolExecutor(max_workers=9) as executor:
         for ani_config in os.listdir(configs_root):
             executor.submit(work, ani_config)
             pass
         pass
+
+    # 添加到字典，避免重复读取资源
+    resources[ani_root] = animation_machine
     return animation_machine

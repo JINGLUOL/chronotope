@@ -37,12 +37,6 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.last_update: float = 0
         """ 最后更新时间 """
 
-        # 精灵跟随参数
-        self.follow_pass_range: int = 373
-        """ 跟随无效范围 """
-        self.follow_space_range: int = 233
-        """ 跟随距离范围 """
-
         # 绘制参数
         self.image = self.animation.frames[0]
         """ 绘制图 """
@@ -55,16 +49,27 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.flip_y = False
         """ 上下翻转 """
 
+        # 精灵跟随参数
+        self.follow_space_range: int = 233
+        """ 跟随距离范围 """
+        self.follow_pass_range: int = 466
+        """ 跟随无效范围 """
+
         # 额外绘制参数
         self.flip_x_changed: bool = False
         self.flip_y_changed: bool = False
         """ 绘制参数变更 """
 
-        # 初始化图片
+        # 初始化图片和位置
         self.setPixmap(self.image)
+        self.setPos(self.sprite_x, self.sprite_y)
 
         # 输出精灵的所有状态
         log(self.sprite_name, self.animation_machine.keys())
+        pass
+
+    @abstractmethod
+    def _sprite_idle_handle(self):
         pass
 
     @abstractmethod

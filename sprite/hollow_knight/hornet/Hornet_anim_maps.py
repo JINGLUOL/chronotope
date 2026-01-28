@@ -28,3 +28,7 @@ transition_turn_anim_map = [
     HornetAniStatus.Idle,
     HornetAniStatus.Run,
 ]
+
+wait_status = [
+    HornetAniStatus.Idle,
+]

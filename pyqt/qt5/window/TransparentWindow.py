@@ -1,78 +1,49 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QSystemTrayIcon, QAction, QMenu, QApplication, QWidget
-
-from global_manager import resources
+from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve
+from PyQt5.QtWidgets import QMainWindow, QWidget
 
 
 class TransparentWindow(QMainWindow):
 
     def __init__(self, x, y, width, height):
         super().__init__()
-
-        # 设置窗口标识
-        self.setWindowFlags(
-            Qt.Window |
-            Qt.FramelessWindowHint |
-            Qt.Tool
-        )
-
-        # 设置窗口背景透明
-        self.setAttribute(Qt.WA_TranslucentBackground)
-
+        self._init_window()
         # 设置窗口大小和位置
         self.setGeometry(x, y, width, height)
+
+        # 显示窗口动画
+        self.show_anim = QPropertyAnimation(self, b"windowOpacity")
+        self.show_anim.setEasingCurve(QEasingCurve.OutSine)
+        self.show_anim.setDuration(300)
+        self.show_anim.setStartValue(0.0)
+        self.show_anim.setEndValue(1.0)
+        self.show_anim.finished.connect(super().show)
+
+        # 隐藏窗口动画
+        self.hide_anim = QPropertyAnimation(self, b"windowOpacity")
+        self.hide_anim.setEasingCurve(QEasingCurve.InSine)
+        self.hide_anim.setDuration(300)
+        self.hide_anim.setStartValue(1.0)
+        self.hide_anim.setEndValue(0.0)
+        self.hide_anim.finished.connect(super().hide)
 
         # 创建中央部件
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
-
-        # 设置布局
-        self.layout = QVBoxLayout(self.central_widget)
-
-        # 创建托盘图标
-        self.tray_icon = QSystemTrayIcon(self)
-        self._init_tray_icon()
         pass
 
-    def _init_tray_icon(self):
-        # 设置托盘图标（可以使用自定义图标）
-        self.tray_icon.setIcon(QIcon(resources.icon))
+    def _init_window(self):
+        # 设置窗口标识
+        self.setWindowFlags(
+            Qt.Window |
+            Qt.FramelessWindowHint |
+            Qt.Tool |
+            Qt.WindowStaysOnTopHint
+        )
 
-        # 创建托盘菜单
-        tray_menu = QMenu()
-
-        # 添加菜单项
-        show_action = QAction("显示窗口", self)
-        show_action.triggered.connect(self.show_window)
-        tray_menu.addAction(show_action)
-
-        tray_menu.addSeparator()
-
-        quit_action = QAction("退出", self)
-        quit_action.triggered.connect(self.quit_application)
-        tray_menu.addAction(quit_action)
-
-        # 设置托盘菜单
-        self.tray_icon.setContextMenu(tray_menu)
-
-        # 托盘图标点击事件
-        self.tray_icon.activated.connect(self.tray_icon_activated)
-
-        # 显示托盘图标
-        self.tray_icon.show()
-        pass
-
-    def tray_icon_activated(self, reason):
-        """处理托盘图标点击事件"""
-        # 双击
-        if reason == QSystemTrayIcon.DoubleClick:
-            self.hide_to_tray()
-            pass
-        # 单击
-        elif reason == QSystemTrayIcon.Trigger:
-            self.show_window()
-            pass
+        # 设置窗口背景透明
+        self.setAttribute(Qt.WA_TranslucentBackground)  # 透明背景
+        self.setAttribute(Qt.WA_NoSystemBackground)  # 禁止系统背景
+        self.setAttribute(Qt.WA_OpaquePaintEvent, False)  # 允许透明绘制
         pass
 
     def show_window(self):
@@ -80,25 +51,18 @@ class TransparentWindow(QMainWindow):
         self.show()
         self.raise_()  # 将窗口提到前面
         self.activateWindow()  # 激活窗口
+        pass
 
-    def hide_to_tray(self):
-        """隐藏到托盘"""
-        self.hide()
+    def showEvent(self, event):
+        if not self.isVisible():
+            self.show_anim.start()
+            pass
+        pass
 
-    def quit_application(self):
-        """退出应用程序"""
-        self.tray_icon.hide()
-        QApplication.quit()
-
-    def closeEvent(self, event):
+    def closeEvent(self, a0):
         """重写关闭事件，隐藏窗口而不是关闭"""
-        event.ignore()
-        self.hide()
-        self.tray_icon.showMessage(
-            "提示",
-            "程序已最小化到托盘",
-            QSystemTrayIcon.Information,
-            2000
-        )
+        a0.ignore()
+        self.hide_anim.start()
+        pass
 
     pass
