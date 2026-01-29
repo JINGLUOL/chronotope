@@ -16,7 +16,7 @@ class TransparentWindow(QMainWindow):
         self.show_anim.setDuration(300)
         self.show_anim.setStartValue(0.0)
         self.show_anim.setEndValue(1.0)
-        self.show_anim.finished.connect(super().show)
+        self.show_anim.finished.connect(self.activate_window)
 
         # 隐藏窗口动画
         self.hide_anim = QPropertyAnimation(self, b"windowOpacity")
@@ -24,7 +24,15 @@ class TransparentWindow(QMainWindow):
         self.hide_anim.setDuration(300)
         self.hide_anim.setStartValue(1.0)
         self.hide_anim.setEndValue(0.0)
-        self.hide_anim.finished.connect(self.hide)
+        self.hide_anim.finished.connect(super().hide)
+
+        # 关闭窗口动画
+        self.close_anim = QPropertyAnimation(self, b"windowOpacity")
+        self.close_anim.setEasingCurve(QEasingCurve.InSine)
+        self.close_anim.setDuration(300)
+        self.close_anim.setStartValue(1.0)
+        self.close_anim.setEndValue(0.0)
+        self.close_anim.finished.connect(super().destroy)
 
         # 创建中央部件
         self.central_widget = QWidget(self)
@@ -48,20 +56,33 @@ class TransparentWindow(QMainWindow):
 
     def toggle_visibility(self):
         if self.isVisible():
-            self.close()
+            self.hide()
         else:
             self.show()
             pass
         pass
 
+    def activate_window(self):
+        self.raise_()  # 将窗口提到前面
+        self.activateWindow()  # 激活窗口
+        pass
+
     def showEvent(self, event):
         self.show_anim.start()
+        super().showEvent(event)
+        pass
+
+    def hide(self):
+        self.hide_anim.start()
         pass
 
     def closeEvent(self, a0):
-        """重写关闭事件，隐藏窗口而不是关闭"""
         a0.ignore()
         self.hide_anim.start()
+        pass
+
+    def destroy(self, d_win=..., d_sub_wins=...):
+        self.close_anim.start()
         pass
 
     pass

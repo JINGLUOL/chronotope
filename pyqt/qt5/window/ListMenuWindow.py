@@ -71,6 +71,7 @@ class ListMenuWindow(TransparentWindow):
     def _load_data(
             self,
             data: dict[str, Callable[[], None] | Any],
+            abs_path: str = '',
             depth: int = 1,
     ) -> ItemList:
         item_list = ItemList(self.central_widget, self.list_width, self.list_height, depth)
@@ -80,17 +81,18 @@ class ListMenuWindow(TransparentWindow):
         item_list.setMouseTracking(True)
         item_list.itemEntered.connect(self.hover_item_handle)
         for item_text in data:
+            item_abs_path = f"{abs_path}->{item_text}"
             # 如果仍是字典进行递归
             if isinstance(data[item_text], dict):
                 list_item = ItemListItem(
-                    f"↓↓ {item_text}", depth,
-                    self._load_data(data[item_text], depth + 1),
+                    f"↓↓ {item_text}", item_abs_path, depth,
+                    self._load_data(data[item_text], item_abs_path, depth + 1),
                 )
                 pass
             # 注册事件
             else:
-                list_item = ItemListItem(item_text, depth)
-                self.item_event_map[item_text] = data[item_text]
+                list_item = ItemListItem(item_text, item_abs_path, depth)
+                self.item_event_map[item_abs_path] = data[item_text]
                 pass
             item_list.addItem(list_item)
             pass
@@ -104,7 +106,7 @@ class ListMenuWindow(TransparentWindow):
 
     def clicked_item_handle(self, item: ItemListItem):
         if not item.item_list:
-            self.item_event_map[item.text()]()
+            self.item_event_map[item.item_abs_path]()
             pass
         pass
 
@@ -137,9 +139,17 @@ class ListMenuWindow(TransparentWindow):
         pass
 
     def hide(self):
+        super().hide()
         for i_list in self.pre_item_list_map.values():
             i_list.hide()
         self.pre_item_list_map.clear()
-        super().hide()
+        pass
+
+    def closeEvent(self, a0):
+        super().closeEvent(a0)
+        for i_list in self.pre_item_list_map.values():
+            i_list.hide()
+        self.pre_item_list_map.clear()
+        pass
 
     pass

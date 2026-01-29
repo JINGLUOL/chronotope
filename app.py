@@ -6,16 +6,13 @@ import pygame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
-from global_manager import screen, resources
+from global_manager import resources, screen
 from pyqt.qt5.util import GlobalHotkeyManager
-from pyqt.qt5.window import ListMenuWindow, PianoWindow, SpritesWindow
+from pyqt.qt5.window import *
 
 if __name__ == '__main__':
     pygame.init()
     app = QApplication(sys.argv)
-
-    piano_window = PianoWindow(screen.x, screen.y, screen.width, screen.height, 5)
-    """ 钢琴窗口 """
 
     sprites_window = SpritesWindow(screen.x, screen.y, screen.width, screen.height)
     """ 桌宠窗口 """
@@ -25,8 +22,18 @@ if __name__ == '__main__':
     menu_window.load_data({
         '隐藏窗口': menu_window.toggle_visibility,
         '娱乐': {
-            '桌面精灵': sprites_window.toggle_visibility,
-            '钢琴': piano_window.toggle_visibility,
+            '桌面精灵': {
+                '显示/隐藏': sprites_window.toggle_visibility,
+                '添加一只小骑士': sprites_window.create_knight_sprite,
+                '添加一只大黄蜂': sprites_window.create_hornet_sprite
+            },
+            '钢琴': {
+                '显示/隐藏': piano_toggle_visibility,
+                '生成3个八度': create_octaves3_piano,
+                '生成5个八度': create_octaves5_piano,
+                '生成7个八度': create_octaves7_piano,
+                '关闭': delete_piano_window,
+            },
         },
         '关闭应用': QApplication.quit,
     })

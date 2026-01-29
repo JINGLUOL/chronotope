@@ -16,8 +16,6 @@ class SpritesWindow(GraphicsTransWindow):
 
         # 精灵列表
         self.sprites: list[SpriteAbs] = []
-        self.create_knight_sprite()
-        self.create_hornet_sprite()
 
         self.delay: int = 16
 

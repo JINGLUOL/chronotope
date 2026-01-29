@@ -190,4 +190,11 @@ class PianoWindow(GraphicsTransWindow):
         self.timer.stop()
         pass
 
+    def destroy(self, d_win=..., d_sub_wins=...):
+        self.timer.stop()
+        del self.timer
+        
+        super().destroy(d_win, d_sub_wins)
+        pass
+
     pass
