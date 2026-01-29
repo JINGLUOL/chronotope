@@ -33,7 +33,7 @@ class GraphicsTransWindow(QGraphicsView):
         self.close_anim.setDuration(300)
         self.close_anim.setStartValue(1.0)
         self.close_anim.setEndValue(0.0)
-        self.close_anim.finished.connect(super().destroy)
+        self.close_anim.finished.connect(self.close_window)
 
         # 创建场景
         self.scene = QGraphicsScene(0, 0, w, h)
@@ -90,6 +90,11 @@ class GraphicsTransWindow(QGraphicsView):
     def activate_window(self):
         self.raise_()  # 将窗口提到前面
         self.activateWindow()  # 激活窗口
+        pass
+
+    def close_window(self):
+        self.scene.clear()
+        super().destroy()
         pass
 
     def showEvent(self, event):

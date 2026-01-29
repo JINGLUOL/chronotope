@@ -25,11 +25,10 @@ class ListMenuWindow(TransparentWindow):
         ItemList::item {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
-                stop:0 rgba(255, 255, 255, 211),
-                stop:0 rgba(179, 217, 240 255),
-                stop:1 rgba(179, 217, 240, 255),
-                stop:1 rgba(215, 238, 248, 211)
+                stop:0 rgba(230, 241, 255, 211),
+                stop:1 rgba(147, 161, 179, 255)
             );
+            border: 1px solid #64ffda;
             font-size: 32px;
             font-weight: 900;
             margin-top: 3px;
@@ -39,11 +38,10 @@ class ListMenuWindow(TransparentWindow):
         ItemList::item:hover {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
-                stop:0 rgba(0, 0, 0, 170),
                 stop:0 rgba(183, 110, 121, 255),
-                stop:1 rgba(183, 110, 121, 255),
                 stop:1 rgba(0, 0, 0, 170)
             );
+            border: 1px solid rgb(255, 223, 0);
             color: rgb(255, 255, 255);
         }
         """)
@@ -123,6 +121,14 @@ class ListMenuWindow(TransparentWindow):
             self.pre_item_list_map[item_depth] = item_list
             x = self.root_list.x() + (self.list_width + 3) * item_depth
             y = self.root_list.y() + self.item_height * item_depth
+            if x + self.list_width > self.x() + self.width():
+                if item_depth - 1 in self.pre_item_list_map:
+                    x = min(self.pre_item_list_map[item_depth - 1].x(), self.root_list.x()) - self.list_width - 3
+                else:
+                    x = self.root_list.x() - self.list_width - 3
+                pass
+            excess_y = y + self.list_height - self.y() - self.height()
+            if excess_y > 0: y -= excess_y
             item_list.move(x, y)
             item_list.show()
             pass
