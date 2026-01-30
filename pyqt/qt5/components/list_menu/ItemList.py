@@ -26,10 +26,6 @@ class ItemList(QListWidget):
         self.setVisible(False)
         # 禁用选择
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        # 无边框
-        self.setWindowFlag(Qt.FramelessWindowHint)
-        # 透明背景
-        self.setAttribute(Qt.WA_TranslucentBackground)
         # 关闭滚动条
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)

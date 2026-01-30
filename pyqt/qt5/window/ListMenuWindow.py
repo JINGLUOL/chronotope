@@ -19,16 +19,18 @@ class ListMenuWindow(TransparentWindow):
 
         self.setStyleSheet("""
         ItemList {
-            background-color: transparent;
-            border: none;
+            background-color: rgba(255, 255, 255, 99);
+            padding: 1px 3px;
+            border-radius: 7px;
+            border: 1px solid rgb(255, 223, 0);
         }
         ItemList::item {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
-                stop:0 rgba(230, 241, 255, 211),
-                stop:1 rgba(147, 161, 179, 255)
+                stop:0 rgba(235, 135, 97, 211),
+                stop:1 rgba(255, 255, 255, 255)
             );
-            border: 1px solid #64ffda;
+            border: 1px solid rgb(255, 223, 0);
             font-size: 32px;
             font-weight: 900;
             margin-top: 3px;
@@ -39,9 +41,9 @@ class ListMenuWindow(TransparentWindow):
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
                 stop:0 rgba(183, 110, 121, 255),
-                stop:1 rgba(0, 0, 0, 170)
+                stop:1 rgba(0, 0, 0, 211)
             );
-            border: 1px solid rgb(255, 223, 0);
+            border: 1px solid rgb(184, 134, 11);
             color: rgb(255, 255, 255);
         }
         """)
@@ -140,7 +142,13 @@ class ListMenuWindow(TransparentWindow):
         pass
 
     def show(self):
-        self.root_list.move(config.mouse_x, config.mouse_y)
+        x = config.mouse_x
+        y = config.mouse_y
+        excess_x = x + self.list_width - self.x() - self.width()
+        excess_y = y + self.list_height - self.y() - self.height()
+        if excess_x > 0: x -= excess_x
+        if excess_y > 0: y -= excess_y
+        self.root_list.move(x, y)
         super().show()
         pass
 
