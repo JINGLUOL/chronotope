@@ -47,6 +47,21 @@ def replace_color_numpy(pixels, old_color=None, new_color=None):
     pass
 
 
+def paste_center_fast(bg: Image, overlay: Image):
+    """
+    最高效的居中绘制方法
+    background: 背景图像
+    overlay: 要居中的图像
+    """
+    # 直接计算居中位置
+    x = (bg.width - overlay.width) // 2
+    y = (bg.height - overlay.height) // 2
+
+    # 直接粘贴（自动处理透明度）
+    bg.paste(overlay, (x, y), overlay)
+    return bg
+
+
 def find_rgb_box_pil(pixels):
     """
     使用PIL检测三原色方框

@@ -1,5 +1,5 @@
 from global_manager import screen
-from .PianoWindow import PianoWindow
+from .PianoWindow import PianoWindow, PracticeLevel
 
 piano_window: PianoWindow | None = None
 
@@ -35,6 +35,46 @@ def piano_toggle_visibility():
         piano_window.toggle_visibility()
     else:
         create_octaves3_piano()
+    pass
+
+
+def piano_practice_difficulty_to_none():
+    global piano_window
+    if piano_window:
+        piano_window.set_practice_difficulty(PracticeLevel.NONE)
+        pass
+    pass
+
+
+def piano_practice_difficulty_to_easy():
+    global piano_window
+    if piano_window:
+        piano_window.set_practice_difficulty(PracticeLevel.EASY)
+        pass
+    pass
+
+
+def piano_practice_difficulty_to_normal():
+    global piano_window
+    if piano_window:
+        piano_window.set_practice_difficulty(PracticeLevel.NORMAL)
+        pass
+    pass
+
+
+def piano_practice_difficulty_to_hard():
+    global piano_window
+    if piano_window:
+        piano_window.set_practice_difficulty(PracticeLevel.HARD)
+        pass
+    pass
+
+
+def piano_practice_difficulty_to_hell():
+    global piano_window
+    if piano_window:
+        piano_window.set_practice_difficulty(PracticeLevel.HELL)
+        pass
     pass
 
 

@@ -8,19 +8,17 @@ from PyQt5.QtGui import QPixmap
 
 from util import str_to_bool
 from util.geometry import Rect
-from util.image import find_rgb_box_pil, clear_colors_numpy, pil_to_pixmap
-
-UNDEFINED: str = 'UNDEFINED'
+from util.image import find_rgb_box_pil, clear_colors_numpy, pil_to_pixmap, paste_center_fast
 
 
-class HollowKnightAnimation:
+class HollowKnightAnimBase:
 
     def __init__(self):
         """ 动画帧初始化 """
         """ 动画参数 """
-        self.version: str = UNDEFINED
-        self.type: str = UNDEFINED
-        self.name: str = UNDEFINED
+        self.version: str = '未知'
+        self.type: str = '未知'
+        self.name: str = '未知'
         self.consistent_sprite_size: bool = True
         self.enable_borders: bool = True
         self.use_sprite_name: bool = False
@@ -30,18 +28,85 @@ class HollowKnightAnimation:
         """ 帧参数 """
         self.frames: list[QPixmap] = []
         ''' 帧列表 '''
-        self.current_frame = 0
-        ''' 当前帧 '''
         self.loop_frame = 0
         ''' 循环起始帧 '''
-        self.in_loop: bool = False
-        ''' 进入循环帧 '''
-        self.start_frame: int = 0
-        ''' 设置起始帧 '''
 
         """ 角色位置判定范围 """
         self.rects: list[Rect] = []
-        self.current_rect: Rect = Rect(0, 0, 0, 0)
+        pass
+
+    def load_animation(self, ani_root: str, config_lines: list[AnyStr], global_size: tuple[int, int]):
+        kv_split_str = ': '
+        frames_split_str = '	'
+        for line in config_lines:
+            line = line.strip()
+            if kv_split_str in line:
+                key, value = line.split(kv_split_str)
+                setattr(self, key, value)
+                pass
+            elif frames_split_str in line:
+                image = Image.open(
+                    f"{ani_root}\\{line.split(frames_split_str)[1]}"
+                ).convert('RGBA')
+                if global_size != image.size:
+                    image = paste_center_fast(Image.new('RGBA', global_size, (0, 0, 0, 0)), image)
+                    pass
+                pixels = np.array(image)
+                # 处理红框
+                image = clear_colors_numpy(pixels, (255, 0, 0))
+                # 检索角色在图片上的范围坐标
+                tl, br = find_rgb_box_pil(pixels)
+                self.rects.append(Rect.from_pos_and_size(tl, (br[0] - tl[0], br[1] - tl[1])))
+                # 添加到帧序列
+                self.frames.append(pil_to_pixmap(image))
+                del pixels
+                pass
+            pass
+        self.consistent_sprite_size = str_to_bool(self.consistent_sprite_size)
+        self.enable_borders = str_to_bool(self.enable_borders)
+        self.use_sprite_name = str_to_bool(self.use_sprite_name)
+        self.sprites = int(self.sprites)
+        self.loop_frame = int(self.loop_frame)
+        pass
+
+    pass
+
+
+class HollowKnightAnimation:
+
+    def __init__(self, hollow_knight_base: HollowKnightAnimBase):
+        """ 初始化动画类 """
+        """ 动画参数 """
+        self.version: str = hollow_knight_base.version
+        self.type: str = hollow_knight_base.type
+        self.name: str = hollow_knight_base.name
+        self.consistent_sprite_size: bool = hollow_knight_base.consistent_sprite_size
+        self.enable_borders: bool = hollow_knight_base.enable_borders
+        self.use_sprite_name: bool = hollow_knight_base.use_sprite_name
+        self.sprites: int = hollow_knight_base.sprites
+        ''' 总帧数 '''
+        self.frames: list[QPixmap] = hollow_knight_base.frames
+        ''' 帧列表 '''
+        self.loop_frame = hollow_knight_base.loop_frame
+        ''' 循环起始帧 '''
+        self.rects: list[Rect] = hollow_knight_base.rects
+        """ 角色碰撞判定集 """
+
+        self.start_frame: int = 0
+        ''' 设置起始帧 '''
+        self.current_frame = 0
+        ''' 当前帧 '''
+        self.in_loop: bool = False
+        ''' 进入循环帧 '''
+        self.current_rect = self.rects[self.current_frame]
+        ''' 角色碰撞矩形 '''
+        pass
+
+    def reset(self):
+        self.start_frame = 0
+        self.current_frame = 0
+        self.current_rect = self.rects[self.current_frame]
+        self.in_loop = False
         pass
 
     def get_frame(self) -> QPixmap:
@@ -62,81 +127,46 @@ class HollowKnightAnimation:
         self.current_frame += 1
         return frame
 
-    def reset(self):
-        self.start_frame = 0
-        self.current_frame = 0
-        self.current_rect = self.rects[self.current_frame]
-        self.in_loop = False
-        pass
-
-    def load_animation(self, ani_root: str, config_lines: list[AnyStr]):
-        kv_split_str = ': '
-        frames_split_str = '	'
-        for line in config_lines:
-            line = line.strip()
-            if kv_split_str in line:
-                key, value = line.split(kv_split_str)
-                setattr(self, key, value)
-                pass
-            elif frames_split_str in line:
-                image = Image.open(
-                    f"{ani_root}\\{line.split(frames_split_str)[1]}"
-                ).convert('RGBA')
-                pixels = np.array(image)
-                # 处理红框
-                image = clear_colors_numpy(pixels, (255, 0, 0))
-                # 检索角色在图片上的范围坐标
-                tl, br = find_rgb_box_pil(pixels)
-                self.rects.append(Rect.from_pos_and_size(tl, (br[0] - tl[0], br[1] - tl[1])))
-                # 添加到帧序列
-                self.frames.append(pil_to_pixmap(image))
-                del pixels
-                pass
-            pass
-        self.consistent_sprite_size = str_to_bool(self.consistent_sprite_size)
-        self.enable_borders = str_to_bool(self.enable_borders)
-        self.use_sprite_name = str_to_bool(self.use_sprite_name)
-        self.sprites = int(self.sprites)
-        self.loop_frame = int(self.loop_frame)
-
-        self.current_rect = self.rects[self.current_frame]
-        pass
-
     pass
 
 
-resources = {}
+loaded_anim_base_map: dict[str, dict[str, HollowKnightAnimBase]] = {}
 """ 空洞骑士资源加载缓存表 """
 
 
-def create_ani_machine(ani_root: str) -> dict[str, HollowKnightAnimation]:
+def create_ani_machine(ani_root: str, global_size: tuple[int, int]) -> dict[str, HollowKnightAnimation]:
     """ 创建动画机 """
     # 资源缓存字典存在时直接返回，避免重复读取资源
-    if ani_root in resources:
-        return resources[ani_root]
+    global loaded_anim_base_map
+    if ani_root not in loaded_anim_base_map:
+        # 动画机对象
+        animation_base = {}
+        # 添加动画机对象到字典，避免重复读取资源
+        loaded_anim_base_map[ani_root] = animation_base
 
-    # 动画机对象
-    animation_machine = {}
-    # 资源配置根目录
-    configs_root = f"{ani_root}\\config"
+        # 资源配置根目录
+        configs_root = f"{ani_root}\\config"
 
+        # 初始化动画源
+        def work(config_file):
+            """ 根据 资源配置文件 进行初始化状态 """
+            with open(f"{configs_root}\\{config_file}", 'r', encoding='utf-8') as f:
+                animation = HollowKnightAnimBase()
+                animation.load_animation(ani_root, f.readlines(), global_size)
+                animation_base[animation.name] = animation
+                pass
+            pass
+
+        """ 调用线程池初始化，避免加载时间冗长 """
+        with ThreadPoolExecutor(max_workers=9) as executor:
+            for ani_config in os.listdir(configs_root):
+                executor.submit(work, ani_config)
+                pass
+            pass
+        pass
     # 初始化动画机器
-    def work(config_file):
-        """ 根据 资源配置文件 进行初始化状态 """
-        with open(f"{configs_root}\\{config_file}", 'r', encoding='utf-8') as f:
-            animation = HollowKnightAnimation()
-            animation.load_animation(ani_root, f.readlines())
-            animation_machine[animation.name] = animation
-            pass
+    animation_machine: dict[str, HollowKnightAnimation] = {}
+    for sprite in loaded_anim_base_map[ani_root]:
+        animation_machine[sprite] = HollowKnightAnimation(loaded_anim_base_map[ani_root][sprite])
         pass
-
-    """ 调用线程池初始化，避免加载时间冗长 """
-    with ThreadPoolExecutor(max_workers=9) as executor:
-        for ani_config in os.listdir(configs_root):
-            executor.submit(work, ani_config)
-            pass
-        pass
-
-    # 添加到字典，避免重复读取资源
-    resources[ani_root] = animation_machine
     return animation_machine

@@ -2,13 +2,17 @@ from PyQt5.QtCore import Qt
 
 from global_manager import config, resources, screen
 from .KnightSpriteAbs import KnightSpriteAbs
-from .Knight_anim_maps import wait_status
+from .Knight_anim_maps import wait_status, KnightAniStatus
 
 
 class KnightSprite(KnightSpriteAbs):
 
     def __init__(self):
-        super().__init__("Knight", resources.Knight)
+        super().__init__(
+            "Knight", KnightAniStatus.Shadow_Recharge,
+            resources.Knight, (349, 186)
+        )
+        self._set_transition_anim(KnightAniStatus.Shadow_Recharge)
         pass
 
     def _sprite_idle_handle(self):
@@ -20,7 +24,7 @@ class KnightSprite(KnightSpriteAbs):
             if Qt.Key_S in self.keys_pressed:
                 self.down()
             else:
-                self.up()
+                self.jump()
             if self.animation.in_loop:
                 if Qt.Key_A in self.keys_pressed:
                     self._set_flip_x(False)
@@ -32,6 +36,12 @@ class KnightSprite(KnightSpriteAbs):
             self.left_run()
         elif Qt.Key_D in self.keys_pressed:
             self.right_run()
+        elif Qt.Key_J in self.keys_pressed:
+            self.reach_out()
+        elif Qt.Key_W in self.keys_pressed:
+            self.look_up()
+        elif Qt.Key_S in self.keys_pressed:
+            self.look_down()
         else:
             self.idle()
             pass
@@ -77,7 +87,7 @@ class KnightSprite(KnightSpriteAbs):
             # print('鼠标坐标', config.mouse_x, config.mouse_y)
             top, bottom, left, right = plus_rect.point_directions(x, y)
             if top:
-                self.up()
+                self.jump()
                 if self.animation.in_loop:
                     if left:
                         self._set_flip_x(False)

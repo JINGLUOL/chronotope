@@ -1,14 +1,20 @@
 from PyQt5.QtCore import Qt
 
-from global_manager import config
+from global_manager import config, resources
 from .HornetSpriteAbs import HornetSpriteAbs
-from .Hornet_anim_maps import wait_status
+from .Hornet_anim_maps import wait_status, HornetAniStatus
 
 
 class HornetSprite(HornetSpriteAbs):
 
     def __init__(self):
-        super().__init__('Hornet', 'Idle')
+        super().__init__(
+            'Hornet', HornetAniStatus.Stop_Somebody,
+            resources.Hornet, (381, 249)
+        )
+
+        self._set_transition_anim(HornetAniStatus.Stop_Somebody)
+        self._set_transition_anim(HornetAniStatus.Stop_Somebody_End)
         pass
 
     def _sprite_idle_handle(self):
@@ -18,7 +24,7 @@ class HornetSprite(HornetSpriteAbs):
     def _sprite_call_handle(self):
         if Qt.Key_K in self.keys_pressed:
             self.jump()
-            if self.transition_ani: return
+            if self.is_transitioning(): return
             if self.animation.in_loop:
                 if Qt.Key_S in self.keys_pressed:
                     self.down_move()
@@ -67,7 +73,7 @@ class HornetSprite(HornetSpriteAbs):
             top, bottom, left, right = plus_rect.point_directions(x, y)
             if top:
                 self.jump()
-                if self.transition_ani:return
+                if self.is_transitioning(): return
                 self.up_move()
                 if self.animation.in_loop:
                     if left:
@@ -81,7 +87,7 @@ class HornetSprite(HornetSpriteAbs):
                 pass
             elif bottom:
                 self.jump()
-                if self.transition_ani:return
+                if self.is_transitioning(): return
                 if self.animation.in_loop:
                     self.down_move()
                     if left:

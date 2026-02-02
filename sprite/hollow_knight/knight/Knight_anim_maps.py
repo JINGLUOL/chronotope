@@ -3,45 +3,61 @@ from dataclasses import dataclass
 
 @dataclass
 class KnightAniStatus:
-    # 闲置
+    """ 小骑士行为状态集 """
+
     IDLE = 'Idle'
+    ''' 闲置 '''
     IDLE_WIND = 'Idle Wind'
 
-    # 走
     WALK = 'Walk'
+    ''' 走 '''
 
-    # 转向
     Turn = 'Turn'
+    ''' 转向 '''
 
-    # 跑
     RUN = 'Run'
+    ''' 跑 '''
     RUN_TO_IDLE = 'Run To Idle'
 
-    # 向上看
     LookUp = 'LookUp'
+    ''' 向上看 '''
     LookUpEnd = 'LookUpEnd'
 
-    # 向下看
     LookDown = 'LookDown'
+    '''向下看'''
     LookDownEnd = 'LookDownEnd'
 
-    # 飞
-    Scream = 'Scream'
-    Scream_End = 'Scream End'
+    Airborne = 'Airborne'
+    ''' 跳 '''
 
-    # 坠
-    SD_Charge_Ground = 'SD Charge Ground'
-    SD_Charge_Ground_End = 'SD Charge Ground End'
+    Fall = 'Fall'
+    ''' 坠落 '''
+
+    Land = 'Land'
+    ''' 着陆 '''
+    HardLand = 'HardLand'
+
+    Reach_Out = 'Reach Out'
+    ''' 伸手 '''
+    Reach_Out_Back = 'Reach Out Back'
+
+    Shadow_Recharge = 'Shadow Recharge'
+    ''' 阴影充能 '''
     pass
 
 
-transition_anim_map = {
-    KnightAniStatus.LookUp: KnightAniStatus.LookUpEnd,
-    KnightAniStatus.LookDown: KnightAniStatus.LookDownEnd,
-    KnightAniStatus.Scream: KnightAniStatus.Scream_End,
-    KnightAniStatus.SD_Charge_Ground: KnightAniStatus.SD_Charge_Ground_End,
+before_anim_transition_map = {
 }
 
+after_anim_transition_map = {
+    KnightAniStatus.Airborne: KnightAniStatus.Land,
+    KnightAniStatus.Fall: KnightAniStatus.Land,
+
+    KnightAniStatus.Reach_Out: KnightAniStatus.Reach_Out_Back,
+
+    KnightAniStatus.LookUp: KnightAniStatus.LookUpEnd,
+    KnightAniStatus.LookDown: KnightAniStatus.LookDownEnd,
+}
 
 turn_transition_anim_map = [
     KnightAniStatus.IDLE,
@@ -52,11 +68,10 @@ turn_transition_anim_map = [
     KnightAniStatus.LookDown,
 ]
 
-
 wait_status = [
     KnightAniStatus.IDLE,
     KnightAniStatus.IDLE_WIND,
     KnightAniStatus.LookUp,
     KnightAniStatus.LookDown,
 ]
-''' 等待状态集合 '''
+''' 等待状态集 '''

@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from global_manager import log
 from global_manager import screen
-from .HollowKnightAnimation import HollowKnightAnimation, UNDEFINED, create_ani_machine
+from .HollowKnightAnimation import HollowKnightAnimation, create_ani_machine
 from ..SpriteAbs import SpriteAbs
 
 
@@ -11,7 +11,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
     def __init__(
             self,
             sprite_name: str, setup_ani_state: str,
-            resources_root: str
+            resources_root: str, global_size: tuple[int, int]
     ):
         super().__init__()
 
@@ -19,7 +19,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 精灵名称 """
 
         # 初始化状态机器
-        self.animation_machine: dict[str, HollowKnightAnimation] = create_ani_machine(resources_root)
+        self.animation_machine: dict[str, HollowKnightAnimation] = create_ani_machine(resources_root, global_size)
         """ 动画机器 """
 
         # 动画参数
@@ -27,10 +27,8 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 动画状态 """
         self.animation: HollowKnightAnimation = self.animation_machine[self.animation_state]
         """ 动画类 """
-        self.transition_ani: HollowKnightAnimation | None = None
+        self.transition_ani_list: list[HollowKnightAnimation] = []
         """ 过渡动画类 """
-        self.pre_trans_ani: str = UNDEFINED
-        """ 上一个过渡动画 """
         self.delay: float = 81
         # self.delay: int = 300
         """ 更新时间间隔 """
@@ -40,9 +38,9 @@ class HollowKnightSpriteAbs(SpriteAbs):
         # 绘制参数
         self.image = self.animation.frames[0]
         """ 绘制图 """
-        self.sprite_x = screen.get_width() - self.animation.current_rect.x - self.animation.current_rect.w
+        self.sprite_x = screen.get_width() - self.image.width()
         """ X 轴值 """
-        self.sprite_y = screen.get_height() - self.animation.current_rect.y - self.animation.current_rect.h
+        self.sprite_y = screen.get_height() - self.image.height()
         """ Y 轴值 """
         self.flip_x = False
         """ 左右翻转 """
@@ -80,15 +78,10 @@ class HollowKnightSpriteAbs(SpriteAbs):
     def _sprite_call_handle(self):
         pass
 
-    def _reset_flip_args(self):
-        self.flip_x_changed = False
-        self.flip_y_changed = False
-        pass
-
     def _set_flip_x(self, val):
         if self.flip_x is val: return
         self.flip_x = val
-        if self.transition_ani: return
+        if self.is_transitioning(): return
         self.flip_x_changed = True
         pass
 
@@ -98,11 +91,17 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.flip_y_changed = True
         pass
 
+    def _reset_flip_args(self):
+        self.flip_x_changed = False
+        self.flip_y_changed = False
+        pass
+
     def _set_transition_anim(self, state: str):
-        self.transition_ani = self.animation_machine[state]
-        self.transition_ani.reset()
+        transition_ani = self.animation_machine[state]
+        transition_ani.reset()
         self._reset_flip_args()
-        # log('set transition ani', self.transition_ani.name)
+        self.transition_ani_list.append(transition_ani)
+        # log('set transition ani', state)
         pass
 
     def _set_anim(self, state: str):
@@ -110,19 +109,23 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.animation = self.animation_machine[self.animation_state]
         self.animation.reset()
         self._reset_flip_args()
-        # log('set ani', self.animation.name)
+        # log('set ani', state)
         pass
+
+    def is_transitioning(self) -> bool:
+        return len(self.transition_ani_list) > 0
 
     def update_anim(self, current_time: float):
         # 切入下一帧
         if current_time - self.last_update > self.delay:
             self.last_update = current_time
             # 过渡动画
-            if self.transition_ani:
-                self.image = self.transition_ani.get_frame()
+            if self.is_transitioning():
+                transition_ani = self.transition_ani_list[0]
+                self.image = transition_ani.get_frame()
                 # 当动画到最后一帧结束过渡动画
-                if self.transition_ani.current_frame == self.transition_ani.sprites:
-                    self.transition_ani = None
+                if transition_ani.current_frame == transition_ani.sprites:
+                    self.transition_ani_list.remove(transition_ani)
                     pass
                 pass
             # 主动画

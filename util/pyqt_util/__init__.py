@@ -1,3 +1,8 @@
+__all__ = ['create_gradient_pixmap', 'timer', 'GlobalHotkeyManager']
+
+from .Timer import timer
+from .GlobalHotkeyManager import GlobalHotkeyManager
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush, QLinearGradient
 
@@ -16,7 +21,7 @@ def create_gradient_pixmap(
     painter = QPainter(pixmap)
     painter.setRenderHint(QPainter.Antialiasing)
 
-    painter.setBrush(QBrush(gradient))
+    painter.setBrush(gradient)
     painter.setPen(Qt.NoPen)
     painter.drawRect(0, 0, w, h)
 

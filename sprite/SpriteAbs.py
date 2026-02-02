@@ -48,6 +48,11 @@ class SpriteAbs(QGraphicsPixmapItem):
             self.sprite_state = SpriteStatus.CALL
             pass
 
+        def def3():
+            if self.scene():
+                self.scene().removeItem(self)
+            pass
+
         sprite_idle = QAction("等待", self.menu)
         sprite_idle.triggered.connect(def0)
 
@@ -57,11 +62,16 @@ class SpriteAbs(QGraphicsPixmapItem):
         sprite_call = QAction("操控", self.menu)
         sprite_call.triggered.connect(def2)
 
+        sprite_del = QAction("删除", self.menu)
+        sprite_del.triggered.connect(def3)
+
         self.menu.addAction(sprite_idle)
         self.menu.addSeparator()
         self.menu.addAction(sprite_follow)
         self.menu.addSeparator()
         self.menu.addAction(sprite_call)
+        self.menu.addSeparator()
+        self.menu.addAction(sprite_del)
         pass
 
     def contextMenuEvent(self, event):

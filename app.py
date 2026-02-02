@@ -7,8 +7,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
 from global_manager import resources, screen
-from pyqt.qt5.util import GlobalHotkeyManager
 from pyqt.qt5.window import *
+from util.pyqt_util import GlobalHotkeyManager
 
 if __name__ == '__main__':
     pygame.init()
@@ -17,25 +17,40 @@ if __name__ == '__main__':
     sprites_window = SpritesWindow(screen.x, screen.y, screen.width, screen.height)
     """ 桌宠窗口 """
 
-    menu_window = ListMenuWindow(screen.x, screen.y, screen.width, screen.height)
+    menu_window = ListMenuWindow(
+        screen.x, screen.y, screen.width, screen.height,
+        list_width=430, list_height=670, item_height=67
+    )
     """ 菜单窗口 """
     menu_window.load_data({
-        '隐藏窗口': menu_window.toggle_visibility,
+        '关闭菜单': menu_window.toggle_visibility,
         '娱乐': {
             '桌面精灵': {
                 '显示/隐藏': sprites_window.toggle_visibility,
                 '添加一只小骑士': sprites_window.create_knight_sprite,
-                '添加一只大黄蜂': sprites_window.create_hornet_sprite
+                '添加一只大黄蜂': sprites_window.create_hornet_sprite,
+                '清除所有精灵': sprites_window.clear_sprites,
             },
             '钢琴': {
                 '显示/隐藏': piano_toggle_visibility,
-                '生成3个八度': create_octaves3_piano,
-                '生成5个八度': create_octaves5_piano,
-                '生成7个八度': create_octaves7_piano,
+                '琴键生成': {
+                    '3个八度': create_octaves3_piano,
+                    '5个八度': create_octaves5_piano,
+                    '7个八度': create_octaves7_piano,
+                },
+                '模式选择': {
+                    '经典模式': piano_practice_difficulty_to_none,
+                    '练习模式': {
+                        '简单': piano_practice_difficulty_to_easy,
+                        '普通': piano_practice_difficulty_to_normal,
+                        '困难': piano_practice_difficulty_to_hard,
+                        '地狱': piano_practice_difficulty_to_hell,
+                    }
+                },
                 '关闭': delete_piano_window,
             },
         },
-        '关闭应用': QApplication.quit,
+        '退出应用': QApplication.quit,
     })
 
     # 创建托盘图标
@@ -73,4 +88,5 @@ if __name__ == '__main__':
     hotkey_manager.show_hide_signal.connect(menu_window.toggle_visibility)
     hotkey_manager.start()
     atexit.register(keyboard.unhook_all)
+
     sys.exit(app.exec_())

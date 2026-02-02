@@ -1,14 +1,17 @@
 from abc import abstractmethod
 
-from global_manager import resources
 from .Hornet_anim_maps import *
 from ..HollowKnightSpriteAbs import HollowKnightSpriteAbs
 
 
 class HornetSpriteAbs(HollowKnightSpriteAbs):
 
-    def __init__(self, sprite_name: str, setup_ani_state: str):
-        super().__init__(sprite_name, setup_ani_state, resources.Hornet)
+    def __init__(
+            self,
+            sprite_name: str, setup_ani_state: str,
+            resources_root: str, global_size: tuple[int, int]
+    ):
+        super().__init__(sprite_name, setup_ani_state, resources_root, global_size)
         pass
 
     @abstractmethod
@@ -27,7 +30,7 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
         # 过渡动画未结束 | 同动画不进行更替
         if (
                 not (self.flip_x_changed or self.flip_y_changed) and
-                (self.transition_ani or state is self.animation_state)
+                (self.is_transitioning() or state is self.animation_state)
         ):
             return
         # 过渡动画
@@ -36,11 +39,11 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
                 self._set_transition_anim(HornetAniStatus.Turn)
             self.flip_x_changed = False
             return
-        elif state in transition_before_anim_map:
-            self._set_transition_anim(transition_before_anim_map[state])
+        elif state in before_anim_transition_map:
+            self._set_transition_anim(before_anim_transition_map[state])
             pass
-        elif self.animation_state in transition_after_anim_map:
-            self._set_transition_anim(transition_after_anim_map[self.animation_state])
+        elif self.animation_state in after_anim_transition_map:
+            self._set_transition_anim(after_anim_transition_map[self.animation_state])
             pass
         # 下一个动画
         self._set_anim(state)
@@ -67,14 +70,14 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
 
     def left_run(self):
         self._set_flip_x(False)
-        if self.transition_ani: return
+        if self.is_transitioning(): return
         self.run_move()
         self.switch_animation(HornetAniStatus.Run)
         pass
 
     def right_run(self):
         self._set_flip_x(True)
-        if self.transition_ani: return
+        if self.is_transitioning(): return
         self.run_move()
         self.switch_animation(HornetAniStatus.Run)
         pass

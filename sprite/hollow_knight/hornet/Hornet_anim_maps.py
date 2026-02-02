@@ -3,24 +3,35 @@ from dataclasses import dataclass
 
 @dataclass
 class HornetAniStatus:
-
     Idle = 'Idle'
+    ''' 等待 '''
 
     Turn = 'Turn'
+    ''' 转向 '''
 
     Run = 'Run'
+    ''' 跑 '''
 
     Jump_Antic = 'Jump Antic'
+    ''' 起跳前 '''
     Jump = 'Jump'
-    Hard_Land='Hard Land'
+    ''' 跳起 '''
+    Hard_Land = 'Hard Land'
+    ''' 硬着陆 '''
+
+    Stop_Somebody = 'Stop Somebody'
+    ''' 阻止动作 '''
+    Stop_Somebody_End = 'Stop Somebody End'
+    ''' 阻止动作结束 '''
 
     pass
 
-transition_before_anim_map = {
+
+before_anim_transition_map = {
     HornetAniStatus.Jump: HornetAniStatus.Jump_Antic,
 }
 
-transition_after_anim_map = {
+after_anim_transition_map = {
     HornetAniStatus.Jump: HornetAniStatus.Hard_Land,
 }
 

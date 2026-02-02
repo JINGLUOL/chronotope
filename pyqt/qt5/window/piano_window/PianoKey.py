@@ -1,4 +1,4 @@
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, Qt
 from PyQt5.QtGui import QPixmap, QLinearGradient, QPainter, QPainterPath, QBrush, QPen
 from PyQt5.QtWidgets import QGraphicsPixmapItem
 
@@ -80,10 +80,26 @@ class PianoKey(QGraphicsPixmapItem):
         painter.restore()
         pass
 
-    def set_radius(self, radius):
-        """设置圆角半径"""
-        self.key_radius = radius
-        self.update()
-        pass
-
     pass
+
+
+keyboard_map = {
+    Qt.Key_G: 'C4',
+    Qt.Key_Y: 'C#4',
+
+    Qt.Key_H: 'D4',
+    Qt.Key_U: 'D#4',
+
+    Qt.Key_J: 'E4',
+
+    Qt.Key_K: 'F4',
+    Qt.Key_O: 'F#4',
+
+    Qt.Key_L: 'G4',
+    Qt.Key_P: 'G#4',
+
+    Qt.Key_Semicolon: 'A4',
+    Qt.Key_BracketLeft: 'A#4',
+
+    Qt.Key_Apostrophe: 'B4'
+}

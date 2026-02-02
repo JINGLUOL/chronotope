@@ -112,14 +112,19 @@ def log(*message: Any) -> None:
     pass
 
 
-def exe_path(relative_path):
+def exe_path(relative_path: str | None = None, to_resources: bool = False):
     """ 精准找到执行文件的绝对路径 """
 
     # 检查是否是打包后的exe环境
     if getattr(sys, 'frozen', False):
         # 如果是PyInstaller打包的exe，使用_MEIPASS或exe所在目录
         # getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
-        return f"{os.path.dirname(sys.executable)}\\_internal\\{relative_path}"
+        if relative_path is None:
+            return os.path.dirname(sys.executable)
+        elif to_resources:
+            return f"{os.path.dirname(sys.executable)}\\_internal\\{relative_path}"
+        else:
+            return f"{os.path.dirname(sys.executable)}\\{relative_path}"
     else:
         # 开发环境下使用脚本所在目录
         return f"{os.path.dirname(os.path.abspath(__file__))}\\{relative_path}"
@@ -128,11 +133,11 @@ def exe_path(relative_path):
 class Resource:
 
     def __init__(self):
-        self.icon = exe_path('resources\\icon.ico')
-
-        self.log_folder = exe_path('JINGLUO_app_cache\\log')
+        self.icon = exe_path('resources\\icon.ico', True)
 
         self.user_folder = exe_path('JINGLUO_app_cache\\user')
+
+        self.log_folder = exe_path('JINGLUO_app_cache\\log')
 
         self.data_folder = exe_path('JINGLUO_app_cache\\data')
 
@@ -143,8 +148,8 @@ class Resource:
         if not os.path.exists(self.data_folder):
             os.makedirs(self.data_folder)
 
-        self.Knight = exe_path('resources\\Sprites\\HollowKnight\\Knight')
-        self.Hornet = exe_path('resources\\Sprites\\HollowKnight\\Hornet')
+        self.Knight = exe_path('resources\\Sprites\\HollowKnight\\Knight', True)
+        self.Hornet = exe_path('resources\\Sprites\\HollowKnight\\Hornet', True)
         pass
 
     def output_log(self, subfolder: str, filename: str):

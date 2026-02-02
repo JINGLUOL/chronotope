@@ -39,6 +39,12 @@ class GraphicsTransWindow(QGraphicsView):
         self.scene = QGraphicsScene(0, 0, w, h)
         self.scene.setBackgroundBrush(QBrush(Qt.transparent))
         self.setScene(self.scene)
+
+        # 设置窗口策略
+        # self.setInteractive(True)
+        # self.setFocusPolicy(Qt.StrongFocus)
+        # self.scene.setFocusItem(None)
+        # self.viewport().installEventFilter(self)
         pass
 
     def _init_window(self):

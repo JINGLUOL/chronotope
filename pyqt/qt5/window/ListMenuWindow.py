@@ -19,22 +19,21 @@ class ListMenuWindow(TransparentWindow):
 
         self.setStyleSheet("""
         ItemList {
-            background-color: rgba(255, 255, 255, 99);
+            background-color: rgba(240, 248, 255, 99);
             padding: 1px 3px;
             border-radius: 7px;
             border: 1px solid rgb(255, 223, 0);
+            padding: 13px 7px;
         }
         ItemList::item {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
-                stop:0 rgba(235, 135, 97, 211),
-                stop:1 rgba(255, 255, 255, 255)
+                stop:0 rgba(255, 255, 255, 255)
+                stop:1 rgba(235, 135, 97, 211)
             );
             border: 1px solid rgb(255, 223, 0);
-            font-size: 32px;
-            font-weight: 900;
-            margin-top: 3px;
-            padding-left: 10px;
+            margin-bottom: 7px;
+            padding-left: 23px;
             border-radius: 7px;
         }
         ItemList::item:hover {
@@ -66,6 +65,9 @@ class ListMenuWindow(TransparentWindow):
         # 初始化菜单
         self.root_list = None
         if data: self.load_data(data)
+
+        self.is_locked: bool = False
+        ''' 菜单锁定 '''
         pass
 
     def _load_data(
@@ -111,9 +113,17 @@ class ListMenuWindow(TransparentWindow):
         pass
 
     def hover_item_handle(self, item: ItemListItem):
+        if self.is_locked: return
+
+        item_depth = item.item_depth
         if item.item_list:
             item_list = item.item_list
-            item_depth = item.item_depth
+
+            if (
+                    item_depth in self.pre_item_list_map and
+                    self.pre_item_list_map[item_depth] is item_list and
+                    item_list.isVisible()
+            ): return
 
             # 隐藏低层级的显示列表
             for i_list in self.pre_item_list_map.values():
@@ -136,12 +146,15 @@ class ListMenuWindow(TransparentWindow):
             pass
         else:
             for i_list in self.pre_item_list_map.values():
-                if i_list.item_depth > item.item_depth:
+                if i_list.item_depth > item_depth:
                     i_list.hide()
                 pass
+            pass
         pass
 
     def show(self):
+        self.is_locked = False
+
         x = config.mouse_x
         y = config.mouse_y
         excess_x = x + self.list_width - self.x() - self.width()
@@ -149,18 +162,25 @@ class ListMenuWindow(TransparentWindow):
         if excess_x > 0: x -= excess_x
         if excess_y > 0: y -= excess_y
         self.root_list.move(x, y)
+        self.root_list.show()
         super().show()
         pass
 
     def hide(self):
+        self.is_locked = True
+
         super().hide()
+        self.root_list.hide()
         for i_list in self.pre_item_list_map.values():
             i_list.hide()
         self.pre_item_list_map.clear()
         pass
 
     def closeEvent(self, a0):
+        self.is_locked = True
+
         super().closeEvent(a0)
+        self.root_list.hide()
         for i_list in self.pre_item_list_map.values():
             i_list.hide()
         self.pre_item_list_map.clear()

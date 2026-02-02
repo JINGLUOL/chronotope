@@ -21,7 +21,7 @@ class Rect:
     def __add__(self, other):
         """ 加法运算 """
         if isinstance(other, (int, float)):
-            return Rect(self.x - other, self.y - other, self.w + other*2, self.h + other*2)
+            return Rect(self.x - other, self.y - other, self.w + other * 2, self.h + other * 2)
         elif isinstance(other, Rect):
             return Rect(self.x - other.w, self.y - other.h, self.w + other.w, self.h + other.h)
         pass
@@ -36,6 +36,11 @@ class Rect:
 
     def __rsub__(self, other):
         return self.__sub__(other)
+
+    def __eq__(self, other):
+        if isinstance(other, Rect):
+            return self.w == other.w and self.h == other.h
+        return False
 
     # 用户友好的字符串表示
     def __str__(self):
