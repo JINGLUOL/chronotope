@@ -33,15 +33,17 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
                 (self.is_transitioning() or state is self.animation_state)
         ):
             return
-        # 切换动作的过渡动画
+        # 连贯动画
+        if self.animation_state in coherent_anim_map and state is coherent_anim_map[self.animation_state]:
+            self._set_anim(state)
+            return
+        # 过渡动画
         if self.flip_x_changed:
             if self.animation_state in turn_transition_anim_map:
                 self._set_transition_anim(KnightAniStatus.Turn)
             self.flip_x_changed = False
             return
-
-        # 执行动画前后的过渡动画
-        if state in before_anim_transition_map:
+        elif state in before_anim_transition_map:
             self._set_transition_anim(before_anim_transition_map[state])
             pass
         elif self.animation_state in after_anim_transition_map:

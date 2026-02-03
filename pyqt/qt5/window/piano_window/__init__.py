@@ -29,6 +29,14 @@ def create_octaves7_piano():
     create_piano_window(screen.x, screen.y, screen.width, screen.height, 7).show()
 
 
+def piano_hide():
+    global piano_window
+    if piano_window:
+        piano_window.hide()
+        pass
+    pass
+
+
 def piano_toggle_visibility():
     global piano_window
     if piano_window:

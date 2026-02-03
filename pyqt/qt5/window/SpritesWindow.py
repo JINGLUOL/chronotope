@@ -78,6 +78,11 @@ class SpritesWindow(GraphicsTransWindow):
         timer.out_connect(self.game_loop)
         pass
 
+    def hideEvent(self, a0):
+        super().hideEvent(a0)
+        timer.out_disconnect(self.game_loop)
+        pass
+
     def closeEvent(self, a0):
         super().closeEvent(a0)
         timer.out_disconnect(self.game_loop)

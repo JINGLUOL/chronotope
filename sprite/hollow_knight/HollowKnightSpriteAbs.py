@@ -29,11 +29,9 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 动画类 """
         self.transition_ani_list: list[HollowKnightAnimation] = []
         """ 过渡动画类 """
-        self.delay: float = 81
-        # self.delay: int = 300
-        """ 更新时间间隔 """
         self.last_update: float = 0
         """ 最后更新时间 """
+        self.delay: float = self.animation.delay
 
         # 绘制参数
         self.image = self.animation.frames[0]
@@ -101,6 +99,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
         transition_ani.reset()
         self._reset_flip_args()
         self.transition_ani_list.append(transition_ani)
+        self.delay = self.transition_ani_list[0].delay
         # log('set transition ani', state)
         pass
 
@@ -109,6 +108,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.animation = self.animation_machine[self.animation_state]
         self.animation.reset()
         self._reset_flip_args()
+        if not self.is_transitioning(): self.delay = self.animation.delay
         # log('set ani', state)
         pass
 
@@ -124,8 +124,12 @@ class HollowKnightSpriteAbs(SpriteAbs):
                 transition_ani = self.transition_ani_list[0]
                 self.image = transition_ani.get_frame()
                 # 当动画到最后一帧结束过渡动画
-                if transition_ani.current_frame == transition_ani.sprites:
+                if transition_ani.current_frame >= transition_ani.sprites:
                     self.transition_ani_list.remove(transition_ani)
+                    if self.is_transitioning():
+                        self.delay = self.transition_ani_list[0].delay
+                    else:
+                        self.delay = self.animation.delay
                     pass
                 pass
             # 主动画

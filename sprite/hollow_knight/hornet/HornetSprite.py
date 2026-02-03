@@ -14,7 +14,6 @@ class HornetSprite(HornetSpriteAbs):
         )
 
         self._set_transition_anim(HornetAniStatus.Stop_Somebody)
-        self._set_transition_anim(HornetAniStatus.Stop_Somebody_End)
         pass
 
     def _sprite_idle_handle(self):
@@ -22,22 +21,22 @@ class HornetSprite(HornetSpriteAbs):
         pass
 
     def _sprite_call_handle(self):
-        if Qt.Key_K in self.keys_pressed:
-            self.jump()
-            if self.is_transitioning(): return
-            if self.animation.in_loop:
-                if Qt.Key_S in self.keys_pressed:
-                    self.down_move()
-                else:
-                    self.up_move()
-                if Qt.Key_A in self.keys_pressed:
-                    self._set_flip_x(False)
-                    self.run_move()
-                elif Qt.Key_D in self.keys_pressed:
-                    self._set_flip_x(True)
-                    self.run_move()
+        if Qt.Key_J in self.keys_pressed:
+            self.stop_somebody()
+        elif Qt.Key_U in self.keys_pressed:
+            self.throw_barb()
+        elif Qt.Key_K in self.keys_pressed:
+            if Qt.Key_S in self.keys_pressed:
+                self.fall()
             else:
-                self.up_move()
+                self.jump()
+            if self.is_transitioning(): return
+            if Qt.Key_A in self.keys_pressed:
+                self._set_flip_x(False)
+                self.run_move()
+            elif Qt.Key_D in self.keys_pressed:
+                self._set_flip_x(True)
+                self.run_move()
         elif Qt.Key_A in self.keys_pressed:
             self.left_run()
         elif Qt.Key_D in self.keys_pressed:
@@ -74,32 +73,24 @@ class HornetSprite(HornetSpriteAbs):
             if top:
                 self.jump()
                 if self.is_transitioning(): return
-                self.up_move()
-                if self.animation.in_loop:
-                    if left:
-                        self._set_flip_x(False)
-                        self.run_move()
-                    elif right:
-                        self._set_flip_x(True)
-                        self.run_move()
-                        pass
+                if left:
+                    self._set_flip_x(False)
+                    self.run_move()
+                elif right:
+                    self._set_flip_x(True)
+                    self.run_move()
                     pass
                 pass
             elif bottom:
-                self.jump()
+                self.fall()
                 if self.is_transitioning(): return
-                if self.animation.in_loop:
-                    self.down_move()
-                    if left:
-                        self._set_flip_x(False)
-                        self.run_move()
-                    elif right:
-                        self._set_flip_x(True)
-                        self.run_move()
-                        pass
+                if left:
+                    self._set_flip_x(False)
+                    self.run_move()
+                elif right:
+                    self._set_flip_x(True)
+                    self.run_move()
                     pass
-                else:
-                    self.up_move()
                 pass
             elif left:
                 self.left_run()

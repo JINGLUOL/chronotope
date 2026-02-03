@@ -30,6 +30,8 @@ class HollowKnightAnimBase:
         ''' 帧列表 '''
         self.loop_frame = 0
         ''' 循环起始帧 '''
+        self.fps: float = 12
+        """ 每秒帧数 """
 
         """ 角色位置判定范围 """
         self.rects: list[Rect] = []
@@ -66,6 +68,8 @@ class HollowKnightAnimBase:
         self.enable_borders = str_to_bool(self.enable_borders)
         self.use_sprite_name = str_to_bool(self.use_sprite_name)
         self.sprites = int(self.sprites)
+        
+        self.fps = int(self.fps)
         self.loop_frame = int(self.loop_frame)
         pass
 
@@ -85,12 +89,15 @@ class HollowKnightAnimation:
         self.use_sprite_name: bool = hollow_knight_base.use_sprite_name
         self.sprites: int = hollow_knight_base.sprites
         ''' 总帧数 '''
-        self.frames: list[QPixmap] = hollow_knight_base.frames
-        ''' 帧列表 '''
         self.loop_frame = hollow_knight_base.loop_frame
         ''' 循环起始帧 '''
+
+        self.frames: list[QPixmap] = hollow_knight_base.frames
+        ''' 帧列表 '''
         self.rects: list[Rect] = hollow_knight_base.rects
         """ 角色碰撞判定集 """
+
+        self.delay: float = 1000 / hollow_knight_base.fps
 
         self.start_frame: int = 0
         ''' 设置起始帧 '''

@@ -1,5 +1,6 @@
 import atexit
 import sys
+import threading
 
 import keyboard
 import pygame
@@ -21,6 +22,19 @@ if __name__ == '__main__':
         screen.x, screen.y, screen.width, screen.height,
         list_width=430, list_height=670, item_height=67
     )
+    """ 应用菜单 """
+
+
+    def app_exit():
+        menu_window.hide()
+        sprites_window.hide()
+        piano_hide()
+
+        ''' 用来关闭应用的延时器 延迟半秒执行 '''
+        threading.Timer(0.5, QApplication.quit).start()
+        pass
+
+
     """ 菜单窗口 """
     menu_window.load_data({
         '关闭菜单': menu_window.toggle_visibility,
@@ -50,7 +64,8 @@ if __name__ == '__main__':
                 '关闭': delete_piano_window,
             },
         },
-        '退出应用': QApplication.quit,
+        # '设置': print,
+        '退出应用': app_exit,
     })
 
     # 创建托盘图标
@@ -60,7 +75,7 @@ if __name__ == '__main__':
     tray_menu = QMenu()
     # 添加菜单项
     quit_action = QAction("退出")
-    quit_action.triggered.connect(QApplication.quit)
+    quit_action.triggered.connect(app_exit)
     tray_menu.addAction(quit_action)
     # menu.addSeparator()
     # ...

@@ -2,7 +2,7 @@ from typing import Callable, Any
 
 from global_manager import config
 from pyqt.qt5.components.list_menu import *
-from pyqt.qt5.components.list_menu import ItemList
+from pyqt.qt5.components.list_menu import ListMenuItem
 from .base import TransparentWindow
 
 
@@ -18,14 +18,14 @@ class ListMenuWindow(TransparentWindow):
         super(ListMenuWindow, self).__init__(x, y, w, h)
 
         self.setStyleSheet("""
-        ItemList {
+        ListMenuItem {
             background-color: rgba(240, 248, 255, 99);
             padding: 1px 3px;
             border-radius: 7px;
             border: 1px solid rgb(255, 223, 0);
             padding: 13px 7px;
         }
-        ItemList::item {
+        ListMenuItem::item {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
                 stop:0 rgba(255, 255, 255, 255)
@@ -36,7 +36,7 @@ class ListMenuWindow(TransparentWindow):
             padding-left: 23px;
             border-radius: 7px;
         }
-        ItemList::item:hover {
+        ListMenuItem::item:hover {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:0, y2:1,
                 stop:0 rgba(183, 110, 121, 255),
@@ -60,7 +60,7 @@ class ListMenuWindow(TransparentWindow):
         self.item_event_map = {}
 
         # 上一个显示的列表
-        self.pre_item_list_map: dict[int, ItemList] = {}
+        self.pre_item_list_map: dict[int, ListMenuItem] = {}
 
         # 初始化菜单
         self.root_list = None
@@ -75,9 +75,9 @@ class ListMenuWindow(TransparentWindow):
             data: dict[str, Callable[[], None] | Any],
             abs_path: str = '',
             depth: int = 1,
-    ) -> ItemList:
-        item_list = ItemList(self.central_widget, self.list_width, self.list_height, depth)
-        item_list.setItemDelegate(ItemsDelegate(self.item_height))
+    ) -> ListMenuItem:
+        item_list = ListMenuItem(self.central_widget, self.list_width, self.list_height, depth)
+        item_list.setItemDelegate(MenuListItemsDelegate(self.item_height))
         # 列表内 item 事件
         item_list.itemClicked.connect(self.clicked_item_handle)
         item_list.setMouseTracking(True)
@@ -86,14 +86,14 @@ class ListMenuWindow(TransparentWindow):
             item_abs_path = f"{abs_path}->{item_text}"
             # 如果仍是字典进行递归
             if isinstance(data[item_text], dict):
-                list_item = ItemListItem(
+                list_item = MenuListItem(
                     f"↓↓ {item_text}", item_abs_path, depth,
                     self._load_data(data[item_text], item_abs_path, depth + 1),
                 )
                 pass
             # 注册事件
             else:
-                list_item = ItemListItem(item_text, item_abs_path, depth)
+                list_item = MenuListItem(item_text, item_abs_path, depth)
                 self.item_event_map[item_abs_path] = data[item_text]
                 pass
             item_list.addItem(list_item)
@@ -106,13 +106,13 @@ class ListMenuWindow(TransparentWindow):
         self.root_list.show()
         pass
 
-    def clicked_item_handle(self, item: ItemListItem):
+    def clicked_item_handle(self, item: MenuListItem):
         if not item.item_list:
             self.item_event_map[item.item_abs_path]()
             pass
         pass
 
-    def hover_item_handle(self, item: ItemListItem):
+    def hover_item_handle(self, item: MenuListItem):
         if self.is_locked: return
 
         item_depth = item.item_depth

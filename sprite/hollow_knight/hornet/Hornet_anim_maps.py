@@ -13,9 +13,11 @@ class HornetAniStatus:
     ''' 跑 '''
 
     Jump_Antic = 'Jump Antic'
-    ''' 起跳前 '''
+    ''' 触发起跳 '''
     Jump = 'Jump'
     ''' 跳起 '''
+    Fall = 'Fall'
+    ''' 降落 '''
     Hard_Land = 'Hard Land'
     ''' 硬着陆 '''
 
@@ -24,18 +26,31 @@ class HornetAniStatus:
     Stop_Somebody_End = 'Stop Somebody End'
     ''' 阻止动作结束 '''
 
+    Barb_Throw_Antic = 'Barb Throw Antic'
+    Barb_Throw = 'Barb Throw'
+    ''' 投出骨钉 '''
+    Barb_Throw_Recover = 'Barb Throw Recover'
+
     pass
 
 
+coherent_anim_map = {
+    HornetAniStatus.Jump: HornetAniStatus.Fall,
+}
+
 before_anim_transition_map = {
     HornetAniStatus.Jump: HornetAniStatus.Jump_Antic,
+    HornetAniStatus.Barb_Throw: HornetAniStatus.Barb_Throw_Antic,
 }
 
 after_anim_transition_map = {
     HornetAniStatus.Jump: HornetAniStatus.Hard_Land,
+    HornetAniStatus.Fall: HornetAniStatus.Hard_Land,
+    HornetAniStatus.Stop_Somebody: HornetAniStatus.Stop_Somebody_End,
+    HornetAniStatus.Barb_Throw: HornetAniStatus.Barb_Throw_Recover,
 }
 
-transition_turn_anim_map = [
+turn_anim_transition_map = [
     HornetAniStatus.Idle,
     HornetAniStatus.Run,
 ]

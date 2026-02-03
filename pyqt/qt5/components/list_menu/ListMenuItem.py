@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QRect
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QStyledItemDelegate, QAbstractItemView, QGraphicsOpacityEffect
 
 
-class ItemsDelegate(QStyledItemDelegate):
+class MenuListItemsDelegate(QStyledItemDelegate):
 
     def __init__(self, height: int):
         super().__init__()
@@ -19,7 +19,7 @@ class ItemsDelegate(QStyledItemDelegate):
     pass
 
 
-class ItemList(QListWidget):
+class ListMenuItem(QListWidget):
 
     def __init__(self, parent, width: int, height: int, item_depth: int):
         super().__init__(parent)
@@ -78,9 +78,9 @@ class ItemList(QListWidget):
     pass
 
 
-class ItemListItem(QListWidgetItem):
+class MenuListItem(QListWidgetItem):
 
-    def __init__(self, text: str, item_abs_path, item_depth: int, item_list: ItemList = None):
+    def __init__(self, text: str, item_abs_path, item_depth: int, item_list: ListMenuItem = None):
         super().__init__(text)
 
         self.item_depth: int = item_depth

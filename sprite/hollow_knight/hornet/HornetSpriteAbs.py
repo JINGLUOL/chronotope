@@ -33,10 +33,15 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
                 (self.is_transitioning() or state is self.animation_state)
         ):
             return
+        # 连贯动画
+        if self.animation_state in coherent_anim_map and state is coherent_anim_map[self.animation_state]:
+            self._set_anim(state)
+            return
         # 过渡动画
         if self.flip_x_changed:
-            if self.animation_state in transition_turn_anim_map:
+            if self.animation_state in turn_anim_transition_map:
                 self._set_transition_anim(HornetAniStatus.Turn)
+                pass
             self.flip_x_changed = False
             return
         elif state in before_anim_transition_map:
@@ -58,7 +63,7 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
         pass
 
     def up_move(self):
-        self.sprite_y -= 10
+        self.sprite_y -= 14
         pass
 
     def down_move(self):
@@ -83,7 +88,23 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
         pass
 
     def jump(self):
+        if self.is_transitioning() or not self.animation.in_loop: return
+        self.up_move()
         self.switch_animation(HornetAniStatus.Jump)
+        pass
+
+    def fall(self):
+        if self.is_transitioning() or not self.animation.in_loop: return
+        self.down_move()
+        self.switch_animation(HornetAniStatus.Fall)
+        pass
+
+    def throw_barb(self):
+        self.switch_animation(HornetAniStatus.Barb_Throw)
+        pass
+
+    def stop_somebody(self):
+        self.switch_animation(HornetAniStatus.Stop_Somebody)
         pass
 
     pass

@@ -46,6 +46,10 @@ class KnightAniStatus:
     pass
 
 
+coherent_anim_map = {
+    KnightAniStatus.Airborne: KnightAniStatus.Fall
+}
+
 before_anim_transition_map = {
 }
 

@@ -100,31 +100,27 @@ def find_rgb_box_pil(pixels):
 
 
 def pil_to_pixmap(pil_image):
-    """将 PIL Image 转换为 QPixmap"""
-    # 转换图像模式为 RGB 或 RGBA
+    """将PIL Image转换为QPixmap"""
+    # 将PIL Image转换为RGB模式（如果不是的话）
     if pil_image.mode == "RGB":
-        r, g, b = pil_image.split()
-        pil_image = Image.merge("RGB", (b, g, r))
-        i_format = QImage.Format_RGB888
-        bytes_per_pixel = 3
+        rgb_image = pil_image
     elif pil_image.mode == "RGBA":
-        r, g, b, a = pil_image.split()
-        pil_image = Image.merge("RGBA", (b, g, r, a))
-        i_format = QImage.Format_RGBA8888
-        bytes_per_pixel = 4
+        rgb_image = pil_image
+    elif pil_image.mode == "L":  # 灰度图
+        rgb_image = pil_image.convert("RGBA")
     else:
-        pil_image = pil_image.convert("RGB")
-        r, g, b = pil_image.split()
-        pil_image = Image.merge("RGB", (b, g, r))
-        i_format = QImage.Format_RGB888
-        bytes_per_pixel = 3
+        rgb_image = pil_image.convert("RGB")
 
     # 获取图像数据
-    data = pil_image.tobytes("raw", pil_image.mode)
+    data = rgb_image.tobytes("raw", "RGBA" if rgb_image.mode == "RGBA" else "RGB")
 
-    # 创建 QImage
-    width, height = pil_image.size
-    q_image = QImage(data, width, height, width * bytes_per_pixel, i_format)
+    # 创建QImage
+    if rgb_image.mode == "RGBA":
+        q_image = QImage(data, rgb_image.width, rgb_image.height, QImage.Format_RGBA8888)
+    else:
+        q_image = QImage(data, rgb_image.width, rgb_image.height,
+                       rgb_image.width * 3, QImage.Format_RGB888)
 
-    # 转换为 QPixmap
-    return QPixmap.fromImage(q_image)
+    # 转换为QPixmap
+    pixmap = QPixmap.fromImage(q_image)
+    return pixmap

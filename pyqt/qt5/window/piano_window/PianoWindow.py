@@ -40,7 +40,12 @@ class PianoWindow(GraphicsTransWindow):
         super().__init__(x, y, w, h)
 
         self.key_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.white_key_notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+        self.n_key_notes = ['1', '2', '3', '4', '5', '6', '7']
+        self.white_key_list = {
+            '1': 'C', '2': 'D', '3': 'E',
+            '4': 'F', '5': 'G', '6': 'A',
+            '7': 'B',
+        }
 
         # 踏板
         self.l_pedal: bool = False
@@ -257,7 +262,7 @@ class PianoWindow(GraphicsTransWindow):
             for i in range(len(self.practice_items), self.practice_item_list_len):
                 item: GraphicsTextRectItem = GraphicsTextRectItem(self.scene, 50, 50)
                 item.set_font(QFont('Arial', 17, QFont.Bold))
-                item.set_z_value(-1)
+                item.set_z_value(3)
                 self.practice_items.add(item)
                 self.practice_item_reset(item)
                 pass
@@ -268,10 +273,10 @@ class PianoWindow(GraphicsTransWindow):
 
     def practice_item_reset(self, item: GraphicsTextRectItem):
         item.set_pen(self.practice_item_pen)
-        item.set_text(self.white_key_notes[int(random.random() * len(self.white_key_notes))])
+        item.set_text(self.n_key_notes[int(random.random() * len(self.n_key_notes))])
         item.set_pos(
-            random.random() * (self.width() - 198) + 99,
-            random.random() * 198 - 99
+            random.random() * (self.width() - 99),
+            random.random() * -737
         )
         self.sorted_practice_items = sorted(self.practice_items, key=lambda obj: obj.y(), reverse=True)
         pass
@@ -306,26 +311,26 @@ class PianoWindow(GraphicsTransWindow):
 
         discarded_practice_items = set()
         fps_len = len(self.future_piano_sounds)
-        for index, item in enumerate(self.sorted_practice_items):
-            if item.y() + self.white_key_h + 50 < self.height():
-                item.move(0, self.practice_item_speed)
+        for index, gtr_item in enumerate(self.sorted_practice_items):
+            if gtr_item.y() + self.white_key_h + 50 < self.height():
+                gtr_item.move(0, self.practice_item_speed)
                 if index < fps_len:
-                    if self.future_piano_sounds[index][:-1] == item.get_text():
+                    if self.future_piano_sounds[index][0] == self.white_key_list[gtr_item.get_text()]:
                         self.player_t_score += 1
-                        self.practice_item_reset(item)
+                        self.practice_item_reset(gtr_item)
                     else:
                         self.player_f_score += 1
-                        self.practice_item_reset(item)
+                        self.practice_item_reset(gtr_item)
                     pass
                 pass
             else:
                 if len(self.practice_items) > self.practice_item_list_len:
-                    discarded_practice_items.add(item)
-                    item.remove()
+                    discarded_practice_items.add(gtr_item)
+                    gtr_item.remove()
                     pass
                 else:
                     self.player_f_score += 1
-                    self.practice_item_reset(item)
+                    self.practice_item_reset(gtr_item)
                     pass
                 pass
             pass
