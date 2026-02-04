@@ -34,6 +34,10 @@ class HornetAniStatus:
     Air_Dash_Effect = 'Air Dash Effect'
     ''' 爆气 '''
 
+    Sphere_Attack = 'Sphere Attack'
+    ''' 灵丝风暴 '''
+    Sphere_Ball = 'Sphere Ball'
+    ''' 灵丝风暴效果 '''
     pass
 
 
@@ -51,10 +55,12 @@ after_anim_transition_map = {
     HornetAniStatus.Fall: HornetAniStatus.Hard_Land,
     HornetAniStatus.Stop_Somebody: HornetAniStatus.Stop_Somebody_End,
     HornetAniStatus.Barb_Throw: HornetAniStatus.Barb_Throw_Recover,
+    HornetAniStatus.Sphere_Attack: HornetAniStatus.Hard_Land,
 }
 
 effect_transition_map = {
     HornetAniStatus.Barb_Throw: HornetAniStatus.Air_Dash_Effect,
+    HornetAniStatus.Sphere_Attack: HornetAniStatus.Sphere_Ball,
 }
 
 turn_anim_transition_map = [

@@ -1,7 +1,6 @@
 from abc import abstractmethod
 
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QGraphicsPixmapItem
 
 from global_manager import log
 from global_manager import screen
@@ -45,12 +44,8 @@ class HollowKnightSpriteAbs(SpriteAbs):
         # 绘制参数
         self.image: QPixmap = self.animation.frames[0]
         """ 源动画图 """
-        self.transition_item: QGraphicsPixmapItem = QGraphicsPixmapItem()
-        """ 过渡动画器 """
         self.transition_image: QPixmap = self.animation.frames[0]
         """ 过渡动画图 """
-        self.effect_item: QGraphicsPixmapItem = QGraphicsPixmapItem()
-        """ 效果动画器 """
         self.effect_image: QPixmap = self.animation.frames[0]
         """ 效果动画图 """
         self.sprite_x = screen.get_width() - self.image.width()
@@ -156,14 +151,14 @@ class HollowKnightSpriteAbs(SpriteAbs):
             offset_x = (self.image.rect().width() - image.rect().width()) / 2
             offset_y = (self.image.rect().height() - image.rect().height()) / 2
             self.hide()
-            self.scene().addItem(self.transition_item)
-            self.transition_item.setPos(self.x() + offset_x, self.y() + offset_y)
             self.transition_item.setZValue(self.zValue())
+            self.transition_item.setPos(self.x() + offset_x, self.y() + offset_y)
+            self.transition_item.show()
             pass
         pass
 
     def _remove_transition_item(self):
-        if self.scene(): self.scene().removeItem(self.transition_item)
+        self.transition_item.hide()
         pass
 
     def _set_effect_image(self, image: QPixmap):
@@ -172,17 +167,15 @@ class HollowKnightSpriteAbs(SpriteAbs):
             self.flip_x and -1 or 1,
             self.flip_y and -1 or 1
         )))
-        if self.scene():
-            offset_x = (self.image.rect().width() - image.rect().width()) / 2
-            offset_y = (self.image.rect().height() - image.rect().height()) / 2
-            self.scene().addItem(self.effect_item)
-            self.effect_item.setPos(self.x() + offset_x, self.y() + offset_y)
-            self.effect_item.setZValue(self.zValue() + 1)
-            pass
+        offset_x = (self.image.rect().width() - image.rect().width()) / 2
+        offset_y = (self.image.rect().height() - image.rect().height()) / 2
+        self.effect_item.setPos(self.x() + offset_x, self.y() + offset_y)
+        self.effect_item.setZValue(self.zValue() + 1)
+        self.effect_item.show()
         pass
 
     def _remove_effect_item(self):
-        if self.scene(): self.scene().removeItem(self.effect_item)
+        self.effect_item.hide()
         pass
 
     def is_transitioning(self) -> bool:

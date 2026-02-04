@@ -14,9 +14,18 @@ class SpriteAbs(QGraphicsPixmapItem):
         """ X 轴值 """
         self.sprite_y = 0
         """ Y 轴值 """
+        self.click_offset_x = 0.0
+        self.click_offset_y = 0.0
 
         self.sprite_state = SpriteStatus.IDLE
         """ 精灵状态 """
+        self.pre_click_sprite_state = None
+        """ 点击精灵前的状态 """
+
+        self.transition_item: QGraphicsPixmapItem = QGraphicsPixmapItem()
+        """ 过渡动画器 """
+        self.effect_item: QGraphicsPixmapItem = QGraphicsPixmapItem()
+        """ 效果动画器 """
 
         self.menu = QMenu()
         """ 精灵右键菜单 """
@@ -30,6 +39,7 @@ class SpriteAbs(QGraphicsPixmapItem):
             SpriteStatus.IDLE: self._sprite_idle_handle,
             SpriteStatus.FOLLOW: self._sprite_follow_handle,
             SpriteStatus.CALL: self._sprite_call_handle,
+            SpriteStatus.CLICKED: self._sprite_click_handle,
         }
         pass
 
@@ -100,8 +110,26 @@ class SpriteAbs(QGraphicsPixmapItem):
         pass
 
     @abstractmethod
+    def _sprite_click_handle(self):
+        pass
+
+    @abstractmethod
     def update_anim(self, current_time: float):
         """ 帧动画绘制方法 """
+        pass
+
+    def mouseDoubleClickEvent(self, event):
+        super().mousePressEvent(event)
+
+        if self.pre_click_sprite_state:
+            self.sprite_state = self.pre_click_sprite_state
+            self.pre_click_sprite_state = None
+        else:
+            self.pre_click_sprite_state = self.sprite_state
+            self.sprite_state = SpriteStatus.CLICKED
+            self.click_offset_x = event.pos().x()
+            self.click_offset_y = event.pos().y()
+            pass
         pass
 
     pass

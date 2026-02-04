@@ -15,6 +15,12 @@ class KnightSprite(KnightSpriteAbs):
         self.to_shadow()
         pass
 
+    def _sprite_click_handle(self):
+        self.sprite_x = config.mouse_x - self.click_offset_x
+        self.sprite_y = config.mouse_y - self.click_offset_y
+        self.switch_animation(KnightAniStatus.Struggle)
+        pass
+
     def _sprite_idle_handle(self):
         self.idle()
         pass
@@ -58,7 +64,7 @@ class KnightSprite(KnightSpriteAbs):
         pass
 
     def _sprite_follow_handle(self):
-        # 获取鼠标坐标
+        # 计算相对于精灵图片的坐标
         x = config.mouse_x - self.sprite_x
         y = config.mouse_y - self.sprite_y
 

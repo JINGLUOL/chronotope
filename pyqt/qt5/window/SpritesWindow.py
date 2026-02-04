@@ -25,6 +25,8 @@ class SpritesWindow(GraphicsTransWindow):
         sprite.keys_pressed = self.keys_pressed
         self.sprites.add(sprite)
         self.scene.addItem(sprite)
+        self.scene.addItem(sprite.transition_item)
+        self.scene.addItem(sprite.effect_item)
         pass
 
     def create_knight_sprite(self):
@@ -46,6 +48,8 @@ class SpritesWindow(GraphicsTransWindow):
         if self._to_clear_sprites:
             for sprite in self.sprites:
                 self.scene.removeItem(sprite)
+                self.scene.removeItem(sprite.transition_item)
+                self.scene.removeItem(sprite.effect_item)
                 pass
             self.sprites.clear()
             self._to_clear_sprites = False

@@ -6,4 +6,5 @@ class SpriteStatus:
     IDLE = 'idle'
     FOLLOW = 'follow'
     CALL = 'call'
+    CLICKED = 'clicked'
     pass

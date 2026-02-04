@@ -17,6 +17,12 @@ class HornetSprite(HornetSpriteAbs):
         self._set_transition_anim(HornetAniStatus.Stop_Somebody_End)
         pass
 
+    def _sprite_click_handle(self):
+        self.sprite_x = config.mouse_x - self.click_offset_x
+        self.sprite_y = config.mouse_y - self.click_offset_y
+        self.switch_animation(HornetAniStatus.Sphere_Attack)
+        pass
+
     def _sprite_idle_handle(self):
         self.idle()
         pass

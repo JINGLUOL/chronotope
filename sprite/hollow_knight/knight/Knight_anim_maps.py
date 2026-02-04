@@ -42,7 +42,10 @@ class KnightAniStatus:
     Reach_Out_Back = 'Reach Out Back'
 
     Shadow_Recharge = 'Shadow Recharge'
-    ''' 阴影充能 '''
+    ''' 阴影切换 '''
+
+    Struggle = 'Struggle'
+    ''' 挣扎 '''
     pass
 
 
@@ -61,6 +64,8 @@ after_anim_transition_map = {
 
     KnightAniStatus.LookUp: KnightAniStatus.LookUpEnd,
     KnightAniStatus.LookDown: KnightAniStatus.LookDownEnd,
+
+    KnightAniStatus.Struggle: KnightAniStatus.Land,
 }
 
 turn_transition_anim_map = [
