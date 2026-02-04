@@ -1,5 +1,7 @@
 from typing import Callable, Any
 
+from PyQt5 import QtCore
+
 from global_manager import config
 from pyqt.qt5.components.list_menu import *
 from pyqt.qt5.components.list_menu import ListMenuItem
@@ -7,6 +9,8 @@ from .base import TransparentWindow
 
 
 class ListMenuWindow(TransparentWindow):
+
+    toggle_visibility_signal = QtCore.pyqtSignal()
 
     def __init__(
             self,
@@ -16,6 +20,7 @@ class ListMenuWindow(TransparentWindow):
             item_height: int = 77,
     ):
         super(ListMenuWindow, self).__init__(x, y, w, h)
+        self.toggle_visibility_signal.connect(self.toggle_visibility)
 
         self.setStyleSheet("""
         ListMenuItem {

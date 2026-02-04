@@ -1,7 +1,11 @@
+import atexit
+import threading
 from collections.abc import Callable
 from typing import Any
 
 from pynput import keyboard
+
+from global_manager import log
 
 
 class GlobalKeyboardListener:
@@ -11,6 +15,9 @@ class GlobalKeyboardListener:
         self.press_hotkeys = {}
         self.release_hotkeys = {}
         self.pressed_keys = set()
+
+        atexit.register(self.stop)
+        pass
 
     def on_press(self, key):
         try:
@@ -54,9 +61,23 @@ class GlobalKeyboardListener:
         self.press_hotkeys[frozenset(keys)] = callback
         pass
 
+    def remove_press_hotkey(self, keys: list[str]):
+        keys = frozenset(keys)
+        if keys in self.press_hotkeys:
+            self.press_hotkeys.pop(keys)
+            pass
+        pass
+
     def add_release_hotkey(self, keys: list[str], callback: Callable[[], Any]):
         """注册释放时的热键"""
         self.release_hotkeys[frozenset(keys)] = callback
+        pass
+
+    def remove_release_hotkey(self, keys: list[str]):
+        keys = frozenset(keys)
+        if keys in self.release_hotkeys:
+            self.release_hotkeys.pop(keys)
+            pass
         pass
 
     def check_press_hotkeys(self):
@@ -77,17 +98,22 @@ class GlobalKeyboardListener:
 
     def start(self):
         """开始监听"""
-        self.listener = keyboard.Listener(
-            on_press=self.on_press,
-            on_release=self.on_release
-        )
-        self.listener.start()
-        print("键盘监听已启动")
+        if self.listener: return
+
+        def work():
+            self.listener = keyboard.Listener(
+                on_press=self.on_press,
+                on_release=self.on_release
+            )
+            self.listener.start()
+
+        threading.Thread(target=work, daemon=True).start()
+        log("键盘监听已启动")
+        pass
 
     def stop(self):
         """停止监听"""
-        if self.listener:
-            self.listener.stop()
-        print("键盘监听已停止")
+        if self.listener: self.listener.stop()
+        log("键盘监听已停止")
 
     pass

@@ -9,10 +9,10 @@ class KnightSprite(KnightSpriteAbs):
 
     def __init__(self):
         super().__init__(
-            "Knight", KnightAniStatus.Shadow_Recharge,
-            resources.Knight, (349, 186)
+            "Knight", KnightAniStatus.IDLE,
+            resources.Knight
         )
-        self._set_transition_anim(KnightAniStatus.Shadow_Recharge)
+        self.to_shadow()
         pass
 
     def _sprite_idle_handle(self):
@@ -20,7 +20,16 @@ class KnightSprite(KnightSpriteAbs):
         pass
 
     def _sprite_call_handle(self):
-        if Qt.Key_K in self.keys_pressed:
+        if Qt.Key_O in self.keys_pressed:
+            self.to_shadow()
+            if Qt.Key_A in self.keys_pressed:
+                self._set_flip_x(False)
+                self.run_move()
+            elif Qt.Key_D in self.keys_pressed:
+                self._set_flip_x(True)
+                self.run_move()
+            pass
+        elif Qt.Key_K in self.keys_pressed:
             if Qt.Key_S in self.keys_pressed:
                 self.down()
             else:

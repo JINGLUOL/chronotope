@@ -9,9 +9,9 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
     def __init__(
             self,
             sprite_name: str, setup_ani_state: str,
-            resources_root: str, global_size: tuple[int, int]
+            resources_root: str
     ):
-        super().__init__(sprite_name, setup_ani_state, resources_root, global_size)
+        super().__init__(sprite_name, setup_ani_state, resources_root)
         pass
 
     @abstractmethod
@@ -55,6 +55,7 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
         pass
 
     def walk_move(self):
+        if not self.isVisible(): return
         if self.flip_x:
             self.sprite_x += 3
         else:
@@ -62,6 +63,7 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
         pass
 
     def run_move(self):
+        if not self.isVisible() and KnightAniStatus.Shadow_Recharge not in self.transition_anim_set: return
         if self.flip_x:
             self.sprite_x += 7
         else:
@@ -69,9 +71,11 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
         pass
 
     def up_move(self):
+        if not self.isVisible(): return
         self.sprite_y -= 7
 
     def down_move(self):
+        if not self.isVisible(): return
         self.sprite_y += 13
 
     def idle(self):
@@ -84,35 +88,35 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
 
     def left_walk(self):
         self._set_flip_x(False)
-        if not self.is_transitioning(): self.walk_move()
+        self.walk_move()
         self.switch_animation(KnightAniStatus.WALK)
         pass
 
     def right_walk(self):
         self._set_flip_x(True)
-        if not self.is_transitioning(): self.walk_move()
+        self.walk_move()
         self.switch_animation(KnightAniStatus.WALK)
         pass
 
     def left_run(self):
         self._set_flip_x(False)
-        if not self.is_transitioning(): self.run_move()
+        self.run_move()
         self.switch_animation(KnightAniStatus.RUN)
         pass
 
     def right_run(self):
         self._set_flip_x(True)
-        if not self.is_transitioning(): self.run_move()
+        self.run_move()
         self.switch_animation(KnightAniStatus.RUN)
         pass
 
     def jump(self):
-        if not self.is_transitioning(): self.up_move()
+        self.up_move()
         self.switch_animation(KnightAniStatus.Airborne)
         pass
 
     def down(self):
-        if self.animation.in_loop: self.down_move()
+        if self.animation_state is KnightAniStatus.Fall: self.down_move()
         self.switch_animation(KnightAniStatus.Fall)
         pass
 
@@ -126,6 +130,11 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
 
     def reach_out(self):
         self.switch_animation(KnightAniStatus.Reach_Out)
+        pass
+
+    def to_shadow(self):
+        if KnightAniStatus.Shadow_Recharge in self.transition_anim_set: return
+        self._set_transition_anim(KnightAniStatus.Shadow_Recharge)
         pass
 
     pass

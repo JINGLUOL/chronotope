@@ -31,6 +31,9 @@ class HornetAniStatus:
     ''' 投出骨钉 '''
     Barb_Throw_Recover = 'Barb Throw Recover'
 
+    Air_Dash_Effect = 'Air Dash Effect'
+    ''' 爆气 '''
+
     pass
 
 
@@ -48,6 +51,10 @@ after_anim_transition_map = {
     HornetAniStatus.Fall: HornetAniStatus.Hard_Land,
     HornetAniStatus.Stop_Somebody: HornetAniStatus.Stop_Somebody_End,
     HornetAniStatus.Barb_Throw: HornetAniStatus.Barb_Throw_Recover,
+}
+
+effect_transition_map = {
+    HornetAniStatus.Barb_Throw: HornetAniStatus.Air_Dash_Effect,
 }
 
 turn_anim_transition_map = [

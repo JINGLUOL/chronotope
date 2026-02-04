@@ -8,7 +8,7 @@ from PyQt5.QtGui import QPixmap
 
 from util import str_to_bool
 from util.geometry import Rect
-from util.image import find_rgb_box_pil, clear_colors_numpy, pil_to_pixmap, paste_center_fast
+from util.image import find_rgb_box_pil, clear_colors_numpy, pil_to_pixmap
 
 
 class HollowKnightAnimBase:
@@ -37,7 +37,7 @@ class HollowKnightAnimBase:
         self.rects: list[Rect] = []
         pass
 
-    def load_animation(self, ani_root: str, config_lines: list[AnyStr], global_size: tuple[int, int]):
+    def load_animation(self, ani_root: str, config_lines: list[AnyStr]):
         kv_split_str = ': '
         frames_split_str = '	'
         for line in config_lines:
@@ -50,9 +50,6 @@ class HollowKnightAnimBase:
                 image = Image.open(
                     f"{ani_root}\\{line.split(frames_split_str)[1]}"
                 ).convert('RGBA')
-                if global_size != image.size:
-                    image = paste_center_fast(Image.new('RGBA', global_size, (0, 0, 0, 0)), image)
-                    pass
                 pixels = np.array(image)
                 # 处理红框
                 image = clear_colors_numpy(pixels, (255, 0, 0))
@@ -141,7 +138,7 @@ loaded_anim_base_map: dict[str, dict[str, HollowKnightAnimBase]] = {}
 """ 空洞骑士资源加载缓存表 """
 
 
-def create_ani_machine(ani_root: str, global_size: tuple[int, int]) -> dict[str, HollowKnightAnimation]:
+def create_ani_machine(ani_root: str) -> dict[str, HollowKnightAnimation]:
     """ 创建动画机 """
     # 资源缓存字典存在时直接返回，避免重复读取资源
     global loaded_anim_base_map
@@ -159,7 +156,7 @@ def create_ani_machine(ani_root: str, global_size: tuple[int, int]) -> dict[str,
             """ 根据 资源配置文件 进行初始化状态 """
             with open(f"{configs_root}\\{config_file}", 'r', encoding='utf-8') as f:
                 animation = HollowKnightAnimBase()
-                animation.load_animation(ani_root, f.readlines(), global_size)
+                animation.load_animation(ani_root, f.readlines())
                 animation_base[animation.name] = animation
                 pass
             pass

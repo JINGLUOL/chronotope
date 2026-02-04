@@ -1,5 +1,8 @@
 from abc import abstractmethod
 
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QGraphicsPixmapItem
+
 from global_manager import log
 from global_manager import screen
 from .HollowKnightAnimation import HollowKnightAnimation, create_ani_machine
@@ -11,7 +14,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
     def __init__(
             self,
             sprite_name: str, setup_ani_state: str,
-            resources_root: str, global_size: tuple[int, int]
+            resources_root: str
     ):
         super().__init__()
 
@@ -19,7 +22,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 精灵名称 """
 
         # 初始化状态机器
-        self.animation_machine: dict[str, HollowKnightAnimation] = create_ani_machine(resources_root, global_size)
+        self.animation_machine: dict[str, HollowKnightAnimation] = create_ani_machine(resources_root)
         """ 动画机器 """
 
         # 动画参数
@@ -27,15 +30,29 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 动画状态 """
         self.animation: HollowKnightAnimation = self.animation_machine[self.animation_state]
         """ 动画类 """
-        self.transition_ani_list: list[HollowKnightAnimation] = []
-        """ 过渡动画类 """
+        self.effect_anim_list: list[HollowKnightAnimation] = []
+        """ 效果动画类序列 """
+        self.transition_anim_list: list[HollowKnightAnimation] = []
+        """ 过渡动画类序列 """
+        self.transition_anim_set: set[str] = set()
+        """ 过渡动画类集合 """
         self.last_update: float = 0
         """ 最后更新时间 """
-        self.delay: float = self.animation.delay
+        self.anim_delay: float = self.animation.delay
+        self.transition_delay: float = self.animation.delay
+        self.effect_delay: float = self.animation.delay
 
         # 绘制参数
-        self.image = self.animation.frames[0]
-        """ 绘制图 """
+        self.image: QPixmap = self.animation.frames[0]
+        """ 源动画图 """
+        self.transition_item: QGraphicsPixmapItem = QGraphicsPixmapItem()
+        """ 过渡动画器 """
+        self.transition_image: QPixmap = self.animation.frames[0]
+        """ 过渡动画图 """
+        self.effect_item: QGraphicsPixmapItem = QGraphicsPixmapItem()
+        """ 效果动画器 """
+        self.effect_image: QPixmap = self.animation.frames[0]
+        """ 效果动画图 """
         self.sprite_x = screen.get_width() - self.image.width()
         """ X 轴值 """
         self.sprite_y = screen.get_height() - self.image.height()
@@ -94,53 +111,117 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.flip_y_changed = False
         pass
 
-    def _set_transition_anim(self, state: str):
-        transition_ani = self.animation_machine[state]
-        transition_ani.reset()
-        self._reset_flip_args()
-        self.transition_ani_list.append(transition_ani)
-        self.delay = self.transition_ani_list[0].delay
-        # log('set transition ani', state)
-        pass
-
     def _set_anim(self, state: str):
         self.animation_state = state
         self.animation = self.animation_machine[self.animation_state]
         self.animation.reset()
+        self.anim_delay = self.animation.delay
         self._reset_flip_args()
-        if not self.is_transitioning(): self.delay = self.animation.delay
         # log('set ani', state)
         pass
 
+    def _set_transition_anim(self, state: str):
+        transition_ani = self.animation_machine[state]
+        transition_ani.reset()
+        self._reset_flip_args()
+        self.transition_anim_list.append(transition_ani)
+        self.transition_anim_set.add(state)
+        self.transition_delay = self.transition_anim_list[0].delay
+        # log('set transition ani', state)
+        pass
+
+    def _set_effect_anim(self, state: str):
+        anim = self.animation_machine[state]
+        anim.reset()
+        self.effect_anim_list.append(anim)
+        self.effect_delay = self.effect_anim_list[0].delay
+        pass
+
+    def _set_image(self, image: QPixmap):
+        self.image = image
+        # 切换帧图
+        self.setPixmap(image.transformed(self.transform().scale(
+            self.flip_x and -1 or 1,
+            self.flip_y and -1 or 1
+        )))
+        pass
+
+    def _set_transition_image(self, image: QPixmap):
+        self.transition_image = image
+        self.transition_item.setPixmap(image.transformed(self.transform().scale(
+            self.flip_x and -1 or 1,
+            self.flip_y and -1 or 1
+        )))
+        if self.scene():
+            offset_x = (self.image.rect().width() - image.rect().width()) / 2
+            offset_y = (self.image.rect().height() - image.rect().height()) / 2
+            self.hide()
+            self.scene().addItem(self.transition_item)
+            self.transition_item.setPos(self.x() + offset_x, self.y() + offset_y)
+            self.transition_item.setZValue(self.zValue())
+            pass
+        pass
+
+    def _remove_transition_item(self):
+        if self.scene(): self.scene().removeItem(self.transition_item)
+        pass
+
+    def _set_effect_image(self, image: QPixmap):
+        self.effect_image = image
+        self.effect_item.setPixmap(image.transformed(self.transform().scale(
+            self.flip_x and -1 or 1,
+            self.flip_y and -1 or 1
+        )))
+        if self.scene():
+            offset_x = (self.image.rect().width() - image.rect().width()) / 2
+            offset_y = (self.image.rect().height() - image.rect().height()) / 2
+            self.scene().addItem(self.effect_item)
+            self.effect_item.setPos(self.x() + offset_x, self.y() + offset_y)
+            self.effect_item.setZValue(self.zValue() + 1)
+            pass
+        pass
+
+    def _remove_effect_item(self):
+        if self.scene(): self.scene().removeItem(self.effect_item)
+        pass
+
     def is_transitioning(self) -> bool:
-        return len(self.transition_ani_list) > 0
+        return len(self.transition_anim_list) > 0
+
+    def is_effect_transitioning(self) -> bool:
+        return len(self.effect_anim_list) > 0
 
     def update_anim(self, current_time: float):
-        # 切入下一帧
-        if current_time - self.last_update > self.delay:
-            self.last_update = current_time
-            # 过渡动画
-            if self.is_transitioning():
-                transition_ani = self.transition_ani_list[0]
-                self.image = transition_ani.get_frame()
+        """ 切帧 | 更替动画 """
+
+        # 过渡动画
+        if self.is_transitioning():
+            if current_time - self.last_update > self.transition_delay:
+                self.last_update = current_time
+                transition_anim = self.transition_anim_list[0]
+                self._set_transition_image(transition_anim.get_frame())
                 # 当动画到最后一帧结束过渡动画
-                if transition_ani.current_frame >= transition_ani.sprites:
-                    self.transition_ani_list.remove(transition_ani)
-                    if self.is_transitioning():
-                        self.delay = self.transition_ani_list[0].delay
-                    else:
-                        self.delay = self.animation.delay
+                if transition_anim.current_frame >= transition_anim.sprites:
+                    self.transition_anim_list.remove(transition_anim)
+                    self.transition_anim_set.discard(transition_anim.name)
+                    if len(self.transition_anim_list) > 0:
+                        self.transition_delay = self.transition_anim_list[0].delay
                     pass
                 pass
-            # 主动画
-            else:
-                self.image = self.animation.get_frame()
+        elif current_time - self.last_update > self.anim_delay:
+            self.last_update = current_time
+            # 效果动画
+            if self.is_effect_transitioning():
+                effect_anim = self.effect_anim_list[0]
+                self._set_effect_image(effect_anim.get_frame())
+                if effect_anim.current_frame >= effect_anim.sprites:
+                    self.effect_anim_list.remove(effect_anim)
+                    self._remove_effect_item()
+                    pass
                 pass
-            # 切换帧图
-            self.setPixmap(self.image.transformed(self.transform().scale(
-                self.flip_x and -1 or 1,
-                self.flip_y and -1 or 1
-            )))
+            self._set_image(self.animation.get_frame())
+            self.show()
+            self._remove_transition_item()
             pass
 
         # 更新绘制的位置

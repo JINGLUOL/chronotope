@@ -1,15 +1,13 @@
-import atexit
 import sys
 import threading
 
-import keyboard
 import pygame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
+from cos.keyboard import GlobalKeyboardListener
 from global_manager import resources, screen
 from pyqt.qt5.window import *
-from util.pyqt_util import GlobalHotkeyManager
 
 if __name__ == '__main__':
     pygame.init()
@@ -99,9 +97,9 @@ if __name__ == '__main__':
     tray_icon.show()
 
     """启动热键监听线程"""
-    hotkey_manager = GlobalHotkeyManager('ctrl+`')
-    hotkey_manager.show_hide_signal.connect(menu_window.toggle_visibility)
-    hotkey_manager.start()
-    atexit.register(keyboard.unhook_all)
+    g_keyboard = GlobalKeyboardListener()
+    g_keyboard.start()
+
+    g_keyboard.add_release_hotkey(['Key.ctrl_l', '<192>'], menu_window.toggle_visibility_signal.emit)
 
     sys.exit(app.exec_())

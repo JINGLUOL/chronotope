@@ -9,11 +9,12 @@ class HornetSprite(HornetSpriteAbs):
 
     def __init__(self):
         super().__init__(
-            'Hornet', HornetAniStatus.Stop_Somebody,
-            resources.Hornet, (381, 249)
+            'Hornet', HornetAniStatus.Idle,
+            resources.Hornet
         )
 
         self._set_transition_anim(HornetAniStatus.Stop_Somebody)
+        self._set_transition_anim(HornetAniStatus.Stop_Somebody_End)
         pass
 
     def _sprite_idle_handle(self):
