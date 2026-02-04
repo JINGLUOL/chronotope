@@ -43,10 +43,10 @@ class KnightSprite(KnightSpriteAbs):
             if self.animation.in_loop:
                 if Qt.Key_A in self.keys_pressed:
                     self._set_flip_x(False)
-                    self.walk_move()
+                    self.run_move()
                 elif Qt.Key_D in self.keys_pressed:
                     self._set_flip_x(True)
-                    self.walk_move()
+                    self.run_move()
         elif Qt.Key_A in self.keys_pressed:
             self.left_run()
         elif Qt.Key_D in self.keys_pressed:

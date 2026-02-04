@@ -31,12 +31,18 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 动画类 """
         self.effect_anim_list: list[HollowKnightAnimation] = []
         """ 效果动画类序列 """
+        self.effect_anim_set: set[str] = set()
+        """ 效果动画类集合 """
         self.transition_anim_list: list[HollowKnightAnimation] = []
         """ 过渡动画类序列 """
         self.transition_anim_set: set[str] = set()
         """ 过渡动画类集合 """
         self.last_update: float = 0
         """ 最后更新时间 """
+        self.effect_last_update: float = 0
+        """ 特效最后更新时间 """
+        self.effect_loop: bool = False
+        """ 特效循环 """
         self.anim_delay: float = self.animation.delay
         self.transition_delay: float = self.animation.delay
         self.effect_delay: float = self.animation.delay
@@ -116,10 +122,10 @@ class HollowKnightSpriteAbs(SpriteAbs):
         pass
 
     def _set_transition_anim(self, state: str):
-        transition_ani = self.animation_machine[state]
-        transition_ani.reset()
+        anim = self.animation_machine[state]
+        anim.reset()
         self._reset_flip_args()
-        self.transition_anim_list.append(transition_ani)
+        self.transition_anim_list.append(anim)
         self.transition_anim_set.add(state)
         self.transition_delay = self.transition_anim_list[0].delay
         # log('set transition ani', state)
@@ -129,6 +135,7 @@ class HollowKnightSpriteAbs(SpriteAbs):
         anim = self.animation_machine[state]
         anim.reset()
         self.effect_anim_list.append(anim)
+        self.effect_anim_set.add(state)
         self.effect_delay = self.effect_anim_list[0].delay
         pass
 
@@ -197,24 +204,35 @@ class HollowKnightSpriteAbs(SpriteAbs):
                 if transition_anim.current_frame >= transition_anim.sprites:
                     self.transition_anim_list.remove(transition_anim)
                     self.transition_anim_set.discard(transition_anim.name)
-                    if len(self.transition_anim_list) > 0:
+                    # 切换动画fps
+                    if self.is_transitioning():
                         self.transition_delay = self.transition_anim_list[0].delay
                     pass
                 pass
-        elif current_time - self.last_update > self.anim_delay:
-            self.last_update = current_time
+        else:
             # 效果动画
-            if self.is_effect_transitioning():
+            if (
+                    self.is_effect_transitioning() and
+                    current_time - self.effect_last_update > self.effect_delay
+            ):
+                self.effect_last_update = current_time
                 effect_anim = self.effect_anim_list[0]
                 self._set_effect_image(effect_anim.get_frame())
-                if effect_anim.current_frame >= effect_anim.sprites:
+                if not self.effect_loop and effect_anim.current_frame >= effect_anim.sprites:
                     self.effect_anim_list.remove(effect_anim)
-                    self._remove_effect_item()
+                    self.effect_anim_set.discard(effect_anim.name)
+                    # 切换动画fps
+                    if self.is_effect_transitioning():
+                        self.effect_delay = self.effect_anim_list[0].delay
+                    else:
+                        self._remove_effect_item()
                     pass
                 pass
-            self._set_image(self.animation.get_frame())
-            self.show()
-            self._remove_transition_item()
+            if current_time - self.last_update > self.anim_delay:
+                self.last_update = current_time
+                self._set_image(self.animation.get_frame())
+                self.show()
+                self._remove_transition_item()
             pass
 
         # 更新绘制的位置

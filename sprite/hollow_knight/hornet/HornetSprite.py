@@ -32,6 +32,8 @@ class HornetSprite(HornetSpriteAbs):
             self.stop_somebody()
         elif Qt.Key_U in self.keys_pressed:
             self.throw_barb()
+        elif Qt.Key_I in self.keys_pressed:
+            self.sphere_ball()
         elif Qt.Key_K in self.keys_pressed:
             if Qt.Key_S in self.keys_pressed:
                 self.fall()

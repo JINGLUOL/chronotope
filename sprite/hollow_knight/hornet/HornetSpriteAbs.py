@@ -52,7 +52,9 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
             pass
         # 添加效果动画
         if state in effect_transition_map:
-            self._set_effect_anim(effect_transition_map[state])
+            effect_anim_name = effect_transition_map[state]
+            self.effect_loop = effect_anim_name in effect_loop_map
+            self._set_effect_anim(effect_anim_name)
         else:
             self.effect_anim_list.clear()
             self._remove_effect_item()
@@ -108,6 +110,10 @@ class HornetSpriteAbs(HollowKnightSpriteAbs):
 
     def throw_barb(self):
         self.switch_animation(HornetAniStatus.Barb_Throw)
+        pass
+
+    def sphere_ball(self):
+        self.switch_animation(HornetAniStatus.Sphere_Attack)
         pass
 
     def stop_somebody(self):

@@ -63,6 +63,10 @@ effect_transition_map = {
     HornetAniStatus.Sphere_Attack: HornetAniStatus.Sphere_Ball,
 }
 
+effect_loop_map = [
+    HornetAniStatus.Sphere_Ball
+]
+
 turn_anim_transition_map = [
     HornetAniStatus.Idle,
     HornetAniStatus.Run,
