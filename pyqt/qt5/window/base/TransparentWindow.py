@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QWidget
 
 class TransparentWindow(QMainWindow):
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x: int, y: int, width: int, height: int):
         super().__init__()
         self._init_window()
         # 设置窗口大小和位置

@@ -239,6 +239,13 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.setPos(self.sprite_x, self.sprite_y)
         pass
 
+    def mouseDoubleClickEvent(self, event):
+        super().mouseDoubleClickEvent(event)
+
+        self.click_offset_x = self.animation.current_rect.x + self.animation.current_rect.w / 2
+        self.click_offset_y = self.animation.current_rect.y + self.animation.current_rect.h / 2
+        pass
+
     @abstractmethod
     def switch_animation(self, state: str):
         """ 切换动画 """

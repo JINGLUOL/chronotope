@@ -119,7 +119,7 @@ class SpriteAbs(QGraphicsPixmapItem):
         pass
 
     def mouseDoubleClickEvent(self, event):
-        super().mousePressEvent(event)
+        super().mouseDoubleClickEvent(event)
 
         if self.pre_click_sprite_state:
             self.sprite_state = self.pre_click_sprite_state
@@ -127,8 +127,6 @@ class SpriteAbs(QGraphicsPixmapItem):
         else:
             self.pre_click_sprite_state = self.sprite_state
             self.sprite_state = SpriteStatus.CLICKED
-            self.click_offset_x = event.pos().x()
-            self.click_offset_y = event.pos().y()
             pass
         pass
 
