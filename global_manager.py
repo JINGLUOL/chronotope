@@ -22,11 +22,7 @@ class Config:
 
         # 日志缓存
         self._logs: list[Any] = []
-
-        # 定义消失色以及替换色
-        self.TRANSPARENT_COLOR = (0, 0, 0)
-        self.TRANSPARENT_COLOR_VAL = 0x000000
-        self.REPLACE_COLOR = (1, 1, 10)
+        self.has_error = False
 
         # 添加程序结束回调
         atexit.register(self._write_log)
@@ -65,6 +61,7 @@ class Config:
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
+        self.has_error = True
         error_msg = \
             f"""
 ╔═══════════════════════════════════════════════════════════╗
@@ -93,8 +90,11 @@ class Config:
             print(content)
             self._logs.append(content)
 
-            if len(self._logs) >= 3000 or write:
-                output_path = resources.output_log(date.strftime("%Y_%m_%d"), f'program log---{time.time()}')
+            if (len(self._logs) >= 3000 or write) and self.has_error:
+                output_path = resources.output_log(
+                    f'program log---{time.time()}',
+                    date.strftime("%Y_%m_%d"),
+                )
                 open(output_path, encoding="utf-8", mode="w").write(end.join(self._logs))
                 self._logs.clear()
             pass
@@ -150,17 +150,25 @@ class Resource:
 
         self.Knight = exe_path('resources\\Sprites\\HollowKnight\\Knight', True)
         self.Hornet = exe_path('resources\\Sprites\\HollowKnight\\Hornet', True)
+        self.SumatraPDF = exe_path('resources\\SumatraPDF\\SumatraPDF-3.6-64.exe', True)
+        self.VoskSmallCNModel = exe_path('resources\\AudioRecognizerBase\\vosk-model-small-cn-0.22', True)
         pass
 
-    def output_log(self, subfolder: str, filename: str):
-        folder_path = f"{self.log_folder}\\{subfolder}"
-        if not os.path.exists(folder_path): os.makedirs(folder_path)
-        return f"{folder_path}\\{filename}.txt"
+    def output_log(self, filename: str, subfolder: str = None):
+        if subfolder:
+            folder_path = f"{self.log_folder}\\{subfolder}"
+            if not os.path.exists(folder_path): os.makedirs(folder_path)
+            return f"{folder_path}\\{filename}.txt"
+        else:
+            return f"{self.log_folder}\\{filename}.txt"
 
-    def output_data(self, subfolder: str, filename: str):
-        folder_path = f"{self.data_folder}\\{subfolder}"
-        if not os.path.exists(folder_path): os.makedirs(folder_path)
-        return f"{folder_path}\\{filename}.txt"
+    def output_data(self, filename: str, subfolder: str = None):
+        if subfolder:
+            folder_path = f"{self.data_folder}\\{subfolder}"
+            if not os.path.exists(folder_path): os.makedirs(folder_path)
+            return f"{folder_path}\\{filename}"
+        else:
+            return f"{self.data_folder}\\{filename}"
 
     pass
 

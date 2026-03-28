@@ -4,8 +4,7 @@ from PyQt5 import QtCore
 
 from global_manager import config
 from pyqt.qt5.components.list_menu import *
-from pyqt.qt5.components.list_menu import ListMenuItem
-from .base import TransparentWindow
+from pyqt.qt5.window import TransparentWindow
 
 
 class ListMenuWindow(TransparentWindow):

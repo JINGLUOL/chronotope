@@ -1,71 +1,17 @@
 import sys
-import threading
 
 import pygame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
+app = QApplication(sys.argv)
+pygame.init()
+
 from cos.keyboard import GlobalKeyboardListener
-from global_manager import resources, screen
-from pyqt.qt5.window import *
+from global_manager import resources
+from gui.event_pages import *
 
 if __name__ == '__main__':
-    pygame.init()
-    app = QApplication(sys.argv)
-
-    sprites_window = SpritesWindow(screen.x, screen.y, screen.width, screen.height)
-    """ 桌宠窗口 """
-
-    menu_window = ListMenuWindow(
-        screen.x, screen.y, screen.width, screen.height,
-        list_width=430, list_height=670, item_height=67
-    )
-    """ 应用菜单 """
-
-
-    def app_exit():
-        menu_window.hide()
-        sprites_window.hide()
-        piano_hide()
-
-        ''' 用来关闭应用的延时器 延迟半秒执行 '''
-        threading.Timer(0.5, QApplication.quit).start()
-        pass
-
-
-    """ 菜单窗口 """
-    menu_window.load_data({
-        '关闭菜单': menu_window.toggle_visibility,
-        '娱乐': {
-            '桌面精灵': {
-                '显示/隐藏': sprites_window.toggle_visibility,
-                '添加一只小骑士': sprites_window.create_knight_sprite,
-                '添加一只大黄蜂': sprites_window.create_hornet_sprite,
-                '清除所有精灵': sprites_window.clear_sprites,
-            },
-            '钢琴': {
-                '显示/隐藏': piano_toggle_visibility,
-                '琴键生成': {
-                    '3个八度': create_octaves3_piano,
-                    '5个八度': create_octaves5_piano,
-                    '7个八度': create_octaves7_piano,
-                },
-                '模式选择': {
-                    '经典模式': piano_practice_difficulty_to_none,
-                    '练习模式': {
-                        '简单': piano_practice_difficulty_to_easy,
-                        '普通': piano_practice_difficulty_to_normal,
-                        '困难': piano_practice_difficulty_to_hard,
-                        '地狱': piano_practice_difficulty_to_hell,
-                    }
-                },
-                '关闭': delete_piano_window,
-            },
-        },
-        # '设置': print,
-        '退出应用': app_exit,
-    })
-
     # 创建托盘图标
     tray_icon = QSystemTrayIcon(QIcon(resources.icon))
 

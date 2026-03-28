@@ -1,6 +1,15 @@
 import numpy as np
 from PIL import Image
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage
+
+
+def resize_fit(img: Image.Image, max_width, max_height):
+    """等比缩放，使图像完全适合 max_width × max_height 框内"""
+    w, h = img.size
+    ratio = min(max_width / w, max_height / h)
+    new_w = int(w * ratio)
+    new_h = int(h * ratio)
+    return img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
 
 def clear_colors_numpy(pixels, *clear_colors):
@@ -47,21 +56,6 @@ def replace_color_numpy(pixels, old_color=None, new_color=None):
     pass
 
 
-def paste_center_fast(bg: Image, overlay: Image):
-    """
-    最高效的居中绘制方法
-    background: 背景图像
-    overlay: 要居中的图像
-    """
-    # 直接计算居中位置
-    x = (bg.width - overlay.width) // 2
-    y = (bg.height - overlay.height) // 2
-
-    # 直接粘贴（自动处理透明度）
-    bg.paste(overlay, (x, y), overlay)
-    return bg
-
-
 def find_rgb_box_pil(pixels):
     """
     使用PIL检测三原色方框
@@ -99,7 +93,7 @@ def find_rgb_box_pil(pixels):
     return top_left, bottom_right
 
 
-def pil_to_pixmap(pil_image):
+def pil_to_qt_img(pil_image: Image) -> QImage:
     """将PIL Image转换为QPixmap"""
     # 将PIL Image转换为RGB模式（如果不是的话）
     if pil_image.mode == "RGB":
@@ -119,8 +113,5 @@ def pil_to_pixmap(pil_image):
         q_image = QImage(data, rgb_image.width, rgb_image.height, QImage.Format_RGBA8888)
     else:
         q_image = QImage(data, rgb_image.width, rgb_image.height,
-                       rgb_image.width * 3, QImage.Format_RGB888)
-
-    # 转换为QPixmap
-    pixmap = QPixmap.fromImage(q_image)
-    return pixmap
+                         rgb_image.width * 3, QImage.Format_RGB888)
+    return q_image

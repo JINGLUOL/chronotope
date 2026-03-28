@@ -2,8 +2,8 @@ import pygame
 
 from sprite import SpriteAbs
 from sprite.hollow_knight import KnightSprite, HornetSprite
-from util.pyqt_util import timer
-from .base import GraphicsTransWindow
+from pyqt.qt5.util import timer
+from pyqt.qt5.window import GraphicsTransWindow
 
 
 class SpritesWindow(GraphicsTransWindow):

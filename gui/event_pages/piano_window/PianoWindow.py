@@ -6,10 +6,10 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QLinearGradient, QFont, QPen
 
 from pyqt.qt5.components import GraphicsTextRectItem
-from util.pyqt_util import create_gradient_pixmap, timer
+from pyqt.qt5.util import create_gradient_pixmap, timer
 from .PianoKey import PianoKey, keyboard_map
 from .PianoSound import PianoSound
-from ..base.GraphicsTransWindow import GraphicsTransWindow
+from pyqt.qt5.window.GraphicsTransWindow import GraphicsTransWindow
 
 
 @dataclass

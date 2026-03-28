@@ -7,8 +7,8 @@ from PIL import Image
 from PyQt5.QtGui import QPixmap
 
 from util import str_to_bool
+from util.file.image import find_rgb_box_pil, clear_colors_numpy, pil_to_qt_img
 from util.geometry import Rect
-from util.image import find_rgb_box_pil, clear_colors_numpy, pil_to_pixmap
 
 
 class HollowKnightAnimBase:
@@ -57,7 +57,7 @@ class HollowKnightAnimBase:
                 tl, br = find_rgb_box_pil(pixels)
                 self.rects.append(Rect.from_pos_and_size(tl, (br[0] - tl[0], br[1] - tl[1])))
                 # 添加到帧序列
-                self.frames.append(pil_to_pixmap(image))
+                self.frames.append(QPixmap.fromImage(pil_to_qt_img(image)))
                 del pixels
                 pass
             pass

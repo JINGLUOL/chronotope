@@ -33,7 +33,7 @@ class Timer:
         try:
             self.timer.timeout.disconnect(callback)
         except Exception as e:
-            print('this connect is not exists:', e)
+            print('this connect is not exists(ignored error: disconnect):', e)
         pass
 
     pass
