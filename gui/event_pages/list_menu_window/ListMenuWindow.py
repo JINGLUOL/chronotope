@@ -1,3 +1,4 @@
+import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
@@ -8,7 +9,6 @@ from pyqt.qt5.window import TransparentWindow
 
 
 class ListMenuWindow(TransparentWindow):
-
     toggle_visibility_signal = QtCore.pyqtSignal()
 
     def __init__(
@@ -112,7 +112,13 @@ class ListMenuWindow(TransparentWindow):
 
     def clicked_item_handle(self, item: MenuListItem):
         if not item.item_list:
-            self.item_event_map[item.item_abs_path]()
+            call = self.item_event_map[item.item_abs_path]
+            sig = inspect.signature(call)
+            params = sig.parameters
+            if len(params) == 1:
+                call(self)
+            else:
+                call()
             pass
         pass
 

@@ -9,6 +9,7 @@ from PIL import Image
 from PyQt5.QtGui import QImage
 
 from pyqt.qt5.util.InputAreaDialog import InputAreaDialog
+from pyqt.qt5.window import TransparentWindow
 from util.file import copy_a_folders_filename, files_name_only_matching
 from util.printer import print_pdf, print_image
 from .ImageDialog import ImageDialog
@@ -68,7 +69,7 @@ def create_id_card_and_diploma_img():
     return
 
 
-def print_materials():
+def print_materials(parent: TransparentWindow):
     excel_path = f'{base_folder}\\总表.xlsx'
     data = pandas.read_excel(excel_path)
     cols = data.columns.values.tolist()
@@ -117,7 +118,9 @@ def print_materials():
         id_card_img = Image.open(id_card_front)
         diploma_img = Image.open(graduation_certificate and graduation_certificate or diploma)
         merged_img = ImageDialog(
-            '生成图片...', id_card_img, diploma_img,
+            '生成图片...',
+            id_card_img, diploma_img,
+            parent
         ).get_result()
         if not merged_img: break
 
