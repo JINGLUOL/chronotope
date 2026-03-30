@@ -75,6 +75,7 @@ def print_image(image: str | QImage, fit=PrinterSettings.FIT):
 
     # 结束绘制，这对于打印机来说至关重要，它会触发实际的打印动作
     painter.end()
+    print(f"图片已发送到打印机")
     pass
 
 

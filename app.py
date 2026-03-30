@@ -5,28 +5,27 @@ import pygame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
-from work import mincraft_work, gk_work
+from app_work import mincraft_work, gk_work
 from c_os.keyboard import GlobalKeyboardListener
 from global_manager import resources, screen
 from gui.event_pages import *
 
 app = QApplication(sys.argv)
+app.setQuitOnLastWindowClosed(False)
 pygame.init()
+
+app_icon = QIcon(resources.icon)
 
 menu_window = ListMenuWindow(
     screen.x, screen.y, screen.width, screen.height,
     list_width=430, list_height=670, item_height=67
 )
+menu_window.setWindowIcon(app_icon)
 """ 应用菜单 """
 
 
-def app_hide():
-    menu_window.hide()
-    pass
-
-
 def app_exit():
-    app_hide()
+    menu_window.hide_all()
 
     ''' 用来关闭应用的延时器 延迟半秒执行 '''
     threading.Timer(0.5, QApplication.quit).start()
@@ -36,19 +35,20 @@ def app_exit():
 if __name__ == '__main__':
 
     sprites_window = SpritesWindow(screen.x, screen.y, screen.width, screen.height)
+    menu_window.add_subordinate_window(sprites_window)
     """ 精灵窗口 """
 
     """ 菜单窗口 """
     menu_window.load_data({
         '关闭菜单': menu_window.toggle_visibility,
-        '隐藏所有窗口': app_hide,
+        '隐藏所有窗口': menu_window.hide_all,
         '工具': {
             'Minecraft': {
                 '配置原版风格资源包': mincraft_work.keep_original_resource_pack,
             },
             '国开': {
                 '复制报名材料列表': gk_work.copy_materials_list,
-                '姓名+身份证后四位转身份证号码': gk_work.name_id4_to_card_id,
+                '姓名加证件号后四位转证件号': gk_work.name_id4_to_card_id,
                 '打印材料': gk_work.print_materials,
             },
         },
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     })
 
     # 创建托盘图标
-    tray_icon = QSystemTrayIcon(QIcon(resources.icon))
+    tray_icon = QSystemTrayIcon(app_icon)
 
     # 创建托盘菜单
     tray_menu = QMenu()

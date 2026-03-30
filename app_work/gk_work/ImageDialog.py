@@ -54,7 +54,7 @@ class ImageDialog(QDialog):
         ))
 
     def merge_img(self, width: int, height: int):
-        top_x, top_y = int(width * 0.03), int(height * 0.055)
+        top_x, top_y = int(width * 0.03), int(height * 0.135)
         overlay_top_w, overlay_top_h = int(width * 0.95), int(height * 0.3)
         overlay_bottom_w, overlay_bottom_h = int(width * 0.95), int(height * 0.55)
 

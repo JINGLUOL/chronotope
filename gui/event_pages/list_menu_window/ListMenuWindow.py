@@ -2,10 +2,11 @@ import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QMainWindow
 
 from global_manager import config
 from pyqt.qt5.components.list_menu import *
-from pyqt.qt5.window import TransparentWindow
+from pyqt.qt5.window import TransparentWindow, GraphicsTransWindow
 
 
 class ListMenuWindow(TransparentWindow):
@@ -19,6 +20,9 @@ class ListMenuWindow(TransparentWindow):
             item_height: int = 77,
     ):
         super(ListMenuWindow, self).__init__(x, y, w, h)
+        self.subordinate_windows: list[
+            QMainWindow | TransparentWindow | GraphicsTransWindow
+            ] = []
         self.toggle_visibility_signal.connect(self.toggle_visibility)
 
         self.setStyleSheet("""
@@ -67,7 +71,7 @@ class ListMenuWindow(TransparentWindow):
         self.pre_item_list_map: dict[int, ListMenuItem] = {}
 
         # 初始化菜单
-        self.root_list = None
+        self.root_list: ListMenuItem | None = None
         if data: self.load_data(data)
 
         self.is_locked: bool = False
@@ -162,6 +166,10 @@ class ListMenuWindow(TransparentWindow):
             pass
         pass
 
+    def add_subordinate_window(self, window: QMainWindow | TransparentWindow | GraphicsTransWindow):
+        self.subordinate_windows.append(window)
+        pass
+
     def show(self):
         self.is_locked = False
 
@@ -186,6 +194,13 @@ class ListMenuWindow(TransparentWindow):
         self.pre_item_list_map.clear()
         pass
 
+    def hide_all(self):
+        for window in self.subordinate_windows:
+            window.hide()
+            pass
+        self.hide()
+        pass
+
     def closeEvent(self, a0):
         self.is_locked = True
 
@@ -194,6 +209,13 @@ class ListMenuWindow(TransparentWindow):
         for i_list in self.pre_item_list_map.values():
             i_list.hide()
         self.pre_item_list_map.clear()
+        pass
+
+    def keyReleaseEvent(self, a0):
+        key = a0.key()
+        if key == Qt.Key_Escape:
+            self.hide()
+            pass
         pass
 
     pass

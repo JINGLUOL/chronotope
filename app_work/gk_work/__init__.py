@@ -7,6 +7,7 @@ import pandas
 import pyperclip
 from PIL import Image
 from PyQt5.QtGui import QImage
+from PyQt5.QtWidgets import QMessageBox
 
 from pyqt.qt5.util.InputAreaDialog import InputAreaDialog
 from pyqt.qt5.window import TransparentWindow
@@ -42,8 +43,8 @@ def print_work(file_path, only_first=True):
     pass
 
 
-def name_id4_to_card_id():
-    target_names = InputAreaDialog('输入姓名+身份证后四位的字符串列表').get_input()
+def name_id4_to_card_id(parent: TransparentWindow):
+    target_names = InputAreaDialog('输入姓名+身份证后四位的字符串列表', parent).get_input()
     if not target_names: return
     target_names = target_names.split('\n')
     result = []
@@ -70,6 +71,15 @@ def create_id_card_and_diploma_img():
 
 
 def print_materials(parent: TransparentWindow):
+    parent.hide()
+    printable = QMessageBox.question(
+        parent,  # 父窗口
+        "确认操作",  # 对话框标题
+        "你确定要执行这个操作吗？",  # 询问内容
+        QMessageBox.Yes | QMessageBox.No,  # 显示"是"和"否"按钮
+        QMessageBox.No  # 默认选中"否"
+    ) == QMessageBox.Yes
+
     excel_path = f'{base_folder}\\总表.xlsx'
     data = pandas.read_excel(excel_path)
     cols = data.columns.values.tolist()
@@ -104,33 +114,35 @@ def print_materials(parent: TransparentWindow):
             )
             continue
 
-        # 检查文件完整性
-        id_card_front, \
-            graduation_certificate, \
-            diploma, \
-            r_c, \
-            photo = \
-            files_name_only_matching(
-                folder_path,
-                ['身份证正面', '前置学历证书', '前置学历证明材料', '其他证明材料', '和招生老师合影']
-            )
+        if printable:
+            # 检查文件完整性
+            id_card_front, \
+                graduation_certificate, \
+                diploma, \
+                r_c, \
+                photo = \
+                files_name_only_matching(
+                    folder_path,
+                    ['身份证正面', '前置学历证书', '前置学历证明材料', '其他证明材料', '和招生老师合影']
+                )
 
-        id_card_img = Image.open(id_card_front)
-        diploma_img = Image.open(graduation_certificate and graduation_certificate or diploma)
-        merged_img = ImageDialog(
-            '生成图片...',
-            id_card_img, diploma_img,
-            parent
-        ).get_result()
-        if not merged_img: break
+            id_card_img = Image.open(id_card_front)
+            diploma_img = Image.open(graduation_certificate and graduation_certificate or diploma)
+            merged_img = ImageDialog(
+                '生成图片...',
+                id_card_img, diploma_img,
+                parent
+            ).get_result()
+            if not merged_img: break
 
-        print_work(pdf_path)
-        print_work(merged_img)
-        # 判断是否为本科
-        if '本科' in p_level:
-            print_work(diploma)
-        print_work(r_c, False)
-        print_work(photo)
+            print_work(pdf_path)
+            print_work(merged_img)
+            # 判断是否为本科
+            if '本科' in p_level:
+                print_work(diploma)
+            print_work(r_c, False)
+            print_work(photo)
+            pass
 
         data.iloc[row_index, status_coli] = 'printed'
         pyperclip.copy(card_id)
