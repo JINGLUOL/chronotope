@@ -1,5 +1,7 @@
-__all__ = ['create_gradient_pixmap', 'timer']
+__all__ = ['create_gradient_pixmap', 'timer', 'InputAreaDialog', 'ImageDialog']
 
+from .ImageDialog import ImageDialog
+from .InputAreaDialog import InputAreaDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QLinearGradient
 

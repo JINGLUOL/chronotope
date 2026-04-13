@@ -5,10 +5,10 @@ import pygame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
-from app_work import mincraft_work, gk_work
+from app_work import gk_work
 from c_os.keyboard import GlobalKeyboardListener
 from global_manager import resources, screen
-from gui.event_pages import *
+from gui import *
 
 app = QApplication(sys.argv)
 app.setQuitOnLastWindowClosed(False)
@@ -43,9 +43,8 @@ if __name__ == '__main__':
         '关闭菜单': menu_window.toggle_visibility,
         '隐藏所有窗口': menu_window.hide_all,
         '工具': {
-            'Minecraft': {
-                '配置原版风格资源包': mincraft_work.keep_original_resource_pack,
-            },
+            '脚本运行器': py_exec_window,
+            '二维码生成器': qr_code_window,
             '国开': {
                 '复制报名材料列表': gk_work.copy_materials_list,
                 '姓名加证件号后四位转证件号': gk_work.name_id4_to_card_id,

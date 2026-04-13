@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QPushButton
 from util.file.image import pil_to_qt_img, resize_fit
 
 
-class ImageDialog(QDialog):
+class ImageMergeDialog(QDialog):
     def __init__(
             self,
             tip_content: str,
@@ -21,7 +21,7 @@ class ImageDialog(QDialog):
         :param overlay_bottom: 图二
         :param parent: 对话框父类
         """
-        super(ImageDialog, self).__init__(parent)
+        super(ImageMergeDialog, self).__init__(parent)
         self.setMinimumSize(550, 700)
         self.setMaximumSize(550, 700)
         self.overlay_top: Image.Image = overlay_top
@@ -50,7 +50,10 @@ class ImageDialog(QDialog):
 
     def update_img(self):
         self.img_label.setPixmap(QPixmap.fromImage(
-            self.merge_img(int(self.width() / 2), int(self.height() / 2))
+            self.merge_img(
+                int(self.width() / 3) * 2,
+                int(self.height() / 3) * 2
+            )
         ))
 
     def merge_img(self, width: int, height: int):

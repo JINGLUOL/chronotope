@@ -9,19 +9,18 @@ from PIL import Image
 from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QMessageBox
 
-from pyqt.qt5.util.InputAreaDialog import InputAreaDialog
+from pyqt.qt5.util import ImageDialog, InputAreaDialog
 from pyqt.qt5.window import TransparentWindow
 from util.file import copy_a_folders_filename, files_name_only_matching
 from util.printer import print_pdf, print_image
-from .ImageDialog import ImageDialog
+from .ImageMergeDialog import ImageMergeDialog
 
 base_folder = r'D:\SharedFolder\国开\报名材料'
 
 
 def copy_materials_list():
     pyperclip.copy(copy_a_folders_filename(
-        base_folder + r'\材料',
-        '[0-9a-zA-Z]+'
+        base_folder + r'\材料'
     ))
     pass
 
@@ -66,10 +65,6 @@ def name_id4_to_card_id(parent: TransparentWindow):
     return result
 
 
-def create_id_card_and_diploma_img():
-    return
-
-
 def print_materials(parent: TransparentWindow):
     parent.hide()
     printable = QMessageBox.question(
@@ -79,6 +74,15 @@ def print_materials(parent: TransparentWindow):
         QMessageBox.Yes | QMessageBox.No,  # 显示"是"和"否"按钮
         QMessageBox.No  # 默认选中"否"
     ) == QMessageBox.Yes
+    """ 是否打印 """
+    check_r_c = QMessageBox.question(
+        parent,  # 父窗口
+        "确认操作",  # 对话框标题
+        "是否检查居住证明材料？",  # 询问内容
+        QMessageBox.Yes | QMessageBox.No,  # 显示"是"和"否"按钮
+        QMessageBox.No  # 默认选中"否"
+    ) == QMessageBox.Yes
+    """ 是否检查居住证明材料 """
 
     excel_path = f'{base_folder}\\总表.xlsx'
     data = pandas.read_excel(excel_path)
@@ -94,14 +98,15 @@ def print_materials(parent: TransparentWindow):
     for val in data.values:
         row_index += 1
         name, card_id, status, p_level, major = (
-            str(val[names_coli]), str(val[card_ids_coli]),
-            str(val[status_coli]),
-            str(val[p_level_coli]), str(val[majors_coli])
+            str(val[names_coli]).strip(), str(val[card_ids_coli]).strip(),
+            str(val[status_coli]).strip(),
+            str(val[p_level_coli]).strip(), str(val[majors_coli]).strip()
         )
-        if 'printed' in status or '打印' in status or '护理' in major: continue
+        name_aid = f"{name}{card_id[-4:]}"
+        if status != '齐' or '护理' in major: continue
 
         # 登记表位置
-        pdf_name = f"{name}{card_id[-4:]}.pdf"
+        pdf_name = f"{name_aid}.pdf"
         pdf_path = f'{base_folder}\\登记表\\{pdf_name}'
         # 材料位置
         folder_path = f'{base_folder}\\材料\\{name} {card_id}'
@@ -114,21 +119,51 @@ def print_materials(parent: TransparentWindow):
             )
             continue
 
-        if printable:
-            # 检查文件完整性
-            id_card_front, \
-                graduation_certificate, \
-                diploma, \
-                r_c, \
-                photo = \
-                files_name_only_matching(
-                    folder_path,
-                    ['身份证正面', '前置学历证书', '前置学历证明材料', '其他证明材料', '和招生老师合影']
-                )
+        # 检查文件完整性
+        id_card_front, graduation_certificate, diploma, \
+            r_c, r_c1, \
+            photo = files_name_only_matching(
+            folder_path,
+            [
+                '身份证正面', '前置学历证书', '前置学历证明材料',
+                '其他证明材料', '异地生源证明材料',
+                '和招生老师合影',
+            ]
+        )
+        if not r_c: r_c = r_c1
 
+        r_c_result = True
+        if r_c and check_r_c:
+            r_c_result = ImageDialog('是否通过？', QImage(r_c), parent).get_result()
+            pass
+
+        """ ------------------------ """
+        # # 1. 加载图片
+        # image = QImage(4961, 7016, QImage.Format_RGB32)
+        # image.fill(QColor(255, 255, 255))  # 填充白色
+        #
+        # # 2. 创建 QPainter 对象
+        # painter = QPainter(image)
+        #
+        # # 3. 设置文字样式
+        # painter.setPen(QColor(0, 0, 0))  # 设置文字颜色为黑色
+        # painter.setFont(QFont("Arial", 29))  # 设置字体和字号
+        #
+        # # 4. 绘制文字
+        # painter.drawText(QPoint(77, 77), name_aid)
+        #
+        # # 5. 结束绘制
+        # painter.end()
+        #
+        # print_image(photo, duplex_img=image)
+        # data.iloc[row_index, status_coli] = 'printed'
+        """ ------------------------ """
+
+        # 打印判断
+        if printable and r_c_result:
             id_card_img = Image.open(id_card_front)
             diploma_img = Image.open(graduation_certificate and graduation_certificate or diploma)
-            merged_img = ImageDialog(
+            merged_img = ImageMergeDialog(
                 '生成图片...',
                 id_card_img, diploma_img,
                 parent
@@ -142,9 +177,13 @@ def print_materials(parent: TransparentWindow):
                 print_work(diploma)
             print_work(r_c, False)
             print_work(photo)
+
+            data.iloc[row_index, status_coli] = 'printed'
             pass
 
-        data.iloc[row_index, status_coli] = 'printed'
+        if not r_c_result:
+            data.iloc[row_index, status_coli] = 'r_c'
+            pass
         pyperclip.copy(card_id)
         pass
     data.to_excel(excel_path, index=False)

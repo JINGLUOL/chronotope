@@ -32,18 +32,23 @@ class PrinterSettings:
     pass
 
 
-def print_image(image: str | QImage, fit=PrinterSettings.FIT):
+def print_image(
+        image: str | QImage, fit=PrinterSettings.FIT,
+        duplex_img: str | QImage = None, duplex_mod=QPrinter.DuplexMode.DuplexShortSide,
+):
     """
     精确打印图片，可控制位置和大小
     :param image: 图片文件路径
     :param fit: 图片适应模式
+    :param duplex_img: 背面图片
+    :param duplex_mod: 双面打印模式
     """"""核心打印函数"""
-    # 获取图片对象
-    if isinstance(image, str):
-        image = QImage(image)
 
     # 创建打印机对象
     printer = QPrinter()
+    if duplex_img is not None:
+        printer.setDuplex(duplex_mod)
+        pass
 
     # 创建QPainter，并指定绘制设备为刚刚配置好的printer
     painter = QPainter(printer)
@@ -51,27 +56,39 @@ def print_image(image: str | QImage, fit=PrinterSettings.FIT):
     # 获取纸张的可打印区域（视口）矩形
     viewport_rect = painter.viewport()
 
-    # 获取图片的原始尺寸
-    image_size = image.size()
+    print_index = 0
+    for img in (image, duplex_img):
+        if img is None: break
+        if print_index > 0: printer.newPage()
 
-    # 图片自适应
-    if fit == PrinterSettings.FIT and image_size.width() > image_size.height():
-        image = image.transformed(QTransform().rotate(90), Qt.SmoothTransformation)
-        image_size = image.size()
+        # 获取图片对象
+        if isinstance(img, str):
+            img = QImage(img)
+            pass
+
+        # 获取图片的原始尺寸
+        image_size = img.size()
+
+        # 图片自适应
+        if fit == PrinterSettings.FIT and image_size.width() > image_size.height():
+            img = img.transformed(QTransform().rotate(90), Qt.SmoothTransformation)
+            image_size = img.size()
+            pass
+
+        # 缩放图片尺寸，使其适应纸张，同时保持宽高比
+        image_size.scale(viewport_rect.size(), Qt.KeepAspectRatio)
+
+        # 重新设置QPainter的视口，使图片居中或位于指定位置
+        painter.setViewport(viewport_rect.x(), viewport_rect.y(),
+                            image_size.width(), image_size.height())
+
+        # 设置QPainter的窗口为图片的完整矩形，确保后续绘制使用图片的坐标系
+        painter.setWindow(img.rect())
+
+        # 在(0,0)点绘制图片，由于上面已经做了坐标映射，图片会自动绘制到纸张中心
+        painter.drawImage(0, 0, img)
+        print_index += 1
         pass
-
-    # 缩放图片尺寸，使其适应纸张，同时保持宽高比
-    image_size.scale(viewport_rect.size(), Qt.KeepAspectRatio)
-
-    # 重新设置QPainter的视口，使图片居中或位于指定位置
-    painter.setViewport(viewport_rect.x(), viewport_rect.y(),
-                        image_size.width(), image_size.height())
-
-    # 设置QPainter的窗口为图片的完整矩形，确保后续绘制使用图片的坐标系
-    painter.setWindow(image.rect())
-
-    # 在(0,0)点绘制图片，由于上面已经做了坐标映射，图片会自动绘制到纸张中心
-    painter.drawImage(0, 0, image)
 
     # 结束绘制，这对于打印机来说至关重要，它会触发实际的打印动作
     painter.end()

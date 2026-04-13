@@ -3,7 +3,10 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QTextEdit
 
 
 class InputAreaDialog(QDialog):
-    def __init__(self, tip_content: str, parent=None):
+    def __init__(
+            self, tip_content: str, parent=None,
+            content: str = '', readonly: bool = False
+    ):
         """
         提示对话框
         :param tip_content: 提示内容
@@ -19,6 +22,8 @@ class InputAreaDialog(QDialog):
         layout.addWidget(tip_label)
 
         self.input_area = input_area = QTextEdit()
+        self.input_area.setText(content)
+        self.input_area.setReadOnly(readonly)
         layout.addWidget(input_area)
 
         self.ok_button = QPushButton("确认", self)
