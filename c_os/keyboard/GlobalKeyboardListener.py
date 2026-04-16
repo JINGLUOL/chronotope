@@ -20,6 +20,7 @@ class GlobalKeyboardListener:
         pass
 
     def on_press(self, key):
+        if key is keyboard.Key.cmd: return
         try:
             key_char = key.char
             if key_char is None: key_char = str(key)
@@ -37,6 +38,7 @@ class GlobalKeyboardListener:
         pass
 
     def on_release(self, key):
+        if key is keyboard.Key.cmd: return
         try:
             key_char = key.char
             if key_char is None: key_char = str(key)

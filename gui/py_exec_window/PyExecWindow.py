@@ -24,7 +24,7 @@ class PyExecWindow(QWidget):
         ''' 执行文件地址选择按钮 '''
         self.exec_btn = QPushButton('执行文件')
         ''' 执行文件按钮 '''
-        self.file_stdout: str = ''
+        self.file_stdout: [str] = []
         ''' 文件执行输出 '''
 
         self.init_ui()
@@ -82,16 +82,16 @@ class PyExecWindow(QWidget):
     def _exec_file_stdout(self):
         # 读取所有可用的输出（可能有多次触发）
         data = self.process.readAllStandardOutput()
-        text = data.data().decode('utf-8')
-        self.file_stdout += text
+        text = data.data().decode('utf-8', errors='ignore')
+        self.file_stdout.append(text)
         pass
 
     def _exec_file_result(self):
         InputAreaDialog(
             '程序执行结果 ↓', self,
-            self.file_stdout, True
+            '\n'.join(self.file_stdout), True
         ).exec()
-        self.file_stdout = ''
+        self.file_stdout.clear()
         pass
 
     pass
