@@ -2,11 +2,11 @@ import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QWidget
 
 from global_manager import config
 from pyqt.qt5.components.list_menu import *
-from pyqt.qt5.window import TransparentWindow, GraphicsTransWindow
+from pyqt.qt5.window import TransparentWindow
 
 
 class ListMenuWindow(TransparentWindow):
@@ -20,9 +20,6 @@ class ListMenuWindow(TransparentWindow):
             item_height: int = 77,
     ):
         super(ListMenuWindow, self).__init__(x, y, w, h)
-        self.subordinate_windows: list[
-            QMainWindow | TransparentWindow | GraphicsTransWindow
-            ] = []
         self.toggle_visibility_signal.connect(self.toggle_visibility)
 
         self.setStyleSheet("""
@@ -119,7 +116,7 @@ class ListMenuWindow(TransparentWindow):
             call = self.item_event_map[item.item_abs_path]
             sig = inspect.signature(call)
             params = sig.parameters
-            if len(params) == 1:
+            if len(params) > 0:
                 call(self)
             else:
                 call()
@@ -166,10 +163,6 @@ class ListMenuWindow(TransparentWindow):
             pass
         pass
 
-    def add_subordinate_window(self, window: QMainWindow | TransparentWindow | GraphicsTransWindow):
-        self.subordinate_windows.append(window)
-        pass
-
     def show(self):
         self.is_locked = False
 
@@ -192,13 +185,6 @@ class ListMenuWindow(TransparentWindow):
         for i_list in self.pre_item_list_map.values():
             i_list.hide()
         self.pre_item_list_map.clear()
-        pass
-
-    def hide_all(self):
-        for window in self.subordinate_windows:
-            window.hide()
-            pass
-        self.hide()
         pass
 
     def closeEvent(self, a0):

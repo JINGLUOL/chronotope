@@ -1,5 +1,6 @@
 import sys
 import threading
+from functools import partial
 
 import pygame
 from PyQt5.QtGui import QIcon
@@ -24,8 +25,26 @@ menu_window.setWindowIcon(app_icon)
 """ 应用菜单 """
 
 
+def app_show():
+    for window in app.topLevelWindows():
+        if not window.isVisible():
+            window.show()
+            pass
+        pass
+    pass
+
+
+def app_hide():
+    for window in app.topLevelWindows():
+        if window.isVisible():
+            window.close()
+            pass
+        pass
+    pass
+
+
 def app_exit():
-    menu_window.hide_all()
+    app_hide()
 
     ''' 用来关闭应用的延时器 延迟半秒执行 '''
     threading.Timer(0.5, QApplication.quit).start()
@@ -35,13 +54,13 @@ def app_exit():
 if __name__ == '__main__':
 
     sprites_window = SpritesWindow(screen.x, screen.y, screen.width, screen.height)
-    menu_window.add_subordinate_window(sprites_window)
     """ 精灵窗口 """
 
     """ 菜单窗口 """
     menu_window.load_data({
-        '关闭菜单': menu_window.toggle_visibility,
-        '隐藏所有窗口': menu_window.hide_all,
+        '关闭菜单': menu_window.hide,
+        '显示所有窗口': app_show,
+        '隐藏所有窗口': app_hide,
         '工具': {
             '脚本运行器': py_exec_window,
             '二维码生成器': qr_code_window,
@@ -61,17 +80,17 @@ if __name__ == '__main__':
             '钢琴': {
                 '显示/隐藏': piano_window.piano_toggle_visibility,
                 '琴键生成': {
-                    '3个八度': piano_window.create_octaves3_piano,
-                    '5个八度': piano_window.create_octaves5_piano,
-                    '7个八度': piano_window.create_octaves7_piano,
+                    '3个八度': partial(piano_window.create_piano, octaves=3),
+                    '5个八度': partial(piano_window.create_piano, octaves=5),
+                    '7个八度': partial(piano_window.create_piano, octaves=7),
                 },
                 '模式选择': {
-                    '经典模式': piano_window.set_difficulty_to_none,
+                    '经典模式': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.NONE),
                     '练习模式': {
-                        '简单': piano_window.set_difficulty_to_easy,
-                        '普通': piano_window.set_difficulty_to_normal,
-                        '困难': piano_window.set_difficulty_to_hard,
-                        '地狱': piano_window.set_difficulty_to_hell,
+                        '简单': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.EASY),
+                        '普通': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.NORMAL),
+                        '困难': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.HARD),
+                        '地狱': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.HELL),
                     }
                 },
                 '关闭': piano_window.delete_piano_window,
