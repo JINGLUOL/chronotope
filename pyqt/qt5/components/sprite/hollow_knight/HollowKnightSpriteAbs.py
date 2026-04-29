@@ -1,9 +1,9 @@
 from abc import abstractmethod
 
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QWidget
 
 from global_manager import log
-from global_manager import screen
 from .HollowKnightAnimation import HollowKnightAnimation, create_ani_machine
 from ..SpriteAbs import SpriteAbs
 
@@ -13,9 +13,9 @@ class HollowKnightSpriteAbs(SpriteAbs):
     def __init__(
             self,
             sprite_name: str, setup_ani_state: str,
-            resources_root: str
+            resources_root: str, parent:QWidget,
     ):
-        super().__init__()
+        super().__init__(parent)
 
         self.sprite_name = sprite_name
         """ 精灵名称 """
@@ -54,9 +54,9 @@ class HollowKnightSpriteAbs(SpriteAbs):
         """ 过渡动画图 """
         self.effect_image: QPixmap = self.animation.frames[0]
         """ 效果动画图 """
-        self.sprite_x = screen.get_width() - self.image.width()
+        self.sprite_x = parent.width() - self.image.width()
         """ X 轴值 """
-        self.sprite_y = screen.get_height() - self.image.height()
+        self.sprite_y = parent.height() - self.image.height()
         """ Y 轴值 """
         self.flip_x = False
         """ 左右翻转 """
@@ -239,8 +239,8 @@ class HollowKnightSpriteAbs(SpriteAbs):
         self.setPos(self.sprite_x, self.sprite_y)
         pass
 
-    def mouseDoubleClickEvent(self, event):
-        super().mouseDoubleClickEvent(event)
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
 
         self.click_offset_x = self.animation.current_rect.x + self.animation.current_rect.w / 2
         self.click_offset_y = self.animation.current_rect.y + self.animation.current_rect.h / 2

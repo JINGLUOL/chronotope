@@ -1,16 +1,17 @@
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget
 
-from global_manager import config, resources, screen
+from global_manager import config, resources
 from .KnightSpriteAbs import KnightSpriteAbs
 from .Knight_anim_maps import wait_status, KnightAniStatus
 
 
 class KnightSprite(KnightSpriteAbs):
 
-    def __init__(self):
+    def __init__(self, parent:QWidget):
         super().__init__(
             "Knight", KnightAniStatus.IDLE,
-            resources.Knight
+            resources.Knight, parent
         )
         self.to_shadow()
         pass
@@ -87,7 +88,7 @@ class KnightSprite(KnightSpriteAbs):
             elif bottom:
                 self.look_down()
             else:
-                if self.sprite_y < screen.get_height() / 2:
+                if self.sprite_y < self.parent.height() / 2:
                     self.idle_wind()
                 else:
                     self.idle()

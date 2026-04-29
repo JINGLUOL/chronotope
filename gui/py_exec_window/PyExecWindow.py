@@ -10,7 +10,7 @@ class PyExecWindow(QWidget):
     def __init__(self, parent=None):
         super(PyExecWindow, self).__init__(parent, Qt.Window)
 
-        self.setWindowTitle('脚本执行窗口')
+        self.setWindowTitle('脚本执行器')
 
         self.process = QProcess(self)
         ''' 执行对象 '''

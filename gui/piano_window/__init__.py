@@ -1,13 +1,4 @@
-__all__ = [
-    'create_piano',
-
-    'piano_toggle_visibility',
-
-    'PracticeLevel',
-    'set_difficulty',
-
-    'delete_piano_window'
-]
+from functools import partial
 
 from pyqt.qt5.window import TransparentWindow
 from .PianoWindow import PianoWindow, PracticeLevel
@@ -25,19 +16,16 @@ def create_piano_window(parent: TransparentWindow, octaves: int = 3) -> PianoWin
             pass
         pass
     piano_window = PianoWindow(parent.x(), parent.y(), parent.width(), parent.height(), octaves)
+    piano_window.show()
     return piano_window
 
 
-def create_piano(parent: TransparentWindow, octaves: int = 3) -> None:
-    create_piano_window(parent, octaves).show()
-    pass
+def create_piano(parent: TransparentWindow, octaves: int = 3) -> PianoWindow:
+    return create_piano_window(parent, octaves)
 
 
 def set_difficulty(parent: TransparentWindow, difficulty: PracticeLevel = PracticeLevel.NONE) -> None:
-    global piano_window
-    if piano_window:
-        piano_window.set_practice_difficulty(difficulty)
-        pass
+    create_piano(parent).set_practice_difficulty(difficulty)
     pass
 
 
@@ -56,3 +44,23 @@ def delete_piano_window():
         piano_window = None
         pass
     pass
+
+
+menu_config = {
+    '显示/隐藏': piano_toggle_visibility,
+    '琴键生成': {
+        '3个八度': partial(create_piano, octaves=3),
+        '5个八度': partial(create_piano, octaves=5),
+        '7个八度': partial(create_piano, octaves=7),
+    },
+    '模式选择': {
+        '经典模式': partial(set_difficulty, difficulty=PracticeLevel.NONE),
+        '练习模式': {
+            '简单': partial(set_difficulty, difficulty=PracticeLevel.EASY),
+            '普通': partial(set_difficulty, difficulty=PracticeLevel.NORMAL),
+            '困难': partial(set_difficulty, difficulty=PracticeLevel.HARD),
+            '地狱': partial(set_difficulty, difficulty=PracticeLevel.HELL),
+        }
+    },
+    '关闭': delete_piano_window,
+}

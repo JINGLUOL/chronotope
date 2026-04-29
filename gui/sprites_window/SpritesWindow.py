@@ -1,9 +1,8 @@
 import pygame
 
-from sprite import SpriteAbs
-from sprite.hollow_knight import KnightSprite, HornetSprite
 from pyqt.qt5.util import timer
 from pyqt.qt5.window import GraphicsTransWindow
+from pyqt.qt5.components.sprite import SpriteAbs
 
 
 class SpritesWindow(GraphicsTransWindow):
@@ -21,22 +20,12 @@ class SpritesWindow(GraphicsTransWindow):
         """ 是否删除所有精灵 """
         pass
 
-    def _add_sprite(self, sprite: SpriteAbs):
+    def add_sprite(self, sprite: SpriteAbs):
         sprite.keys_pressed = self.keys_pressed
         self.sprites.add(sprite)
         self.scene.addItem(sprite)
         self.scene.addItem(sprite.transition_item)
         self.scene.addItem(sprite.effect_item)
-        pass
-
-    def create_knight_sprite(self):
-        sprite = KnightSprite()
-        self._add_sprite(sprite)
-        pass
-
-    def create_hornet_sprite(self):
-        sprite = HornetSprite()
-        self._add_sprite(sprite)
         pass
 
     def clear_sprites(self):

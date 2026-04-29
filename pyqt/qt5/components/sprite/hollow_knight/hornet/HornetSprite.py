@@ -1,4 +1,5 @@
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget
 
 from global_manager import config, resources
 from .HornetSpriteAbs import HornetSpriteAbs
@@ -7,10 +8,10 @@ from .Hornet_anim_maps import wait_status, HornetAniStatus
 
 class HornetSprite(HornetSpriteAbs):
 
-    def __init__(self):
+    def __init__(self, parent:QWidget):
         super().__init__(
             'Hornet', HornetAniStatus.Idle,
-            resources.Hornet
+            resources.Hornet, parent
         )
 
         self._set_transition_anim(HornetAniStatus.Stop_Somebody)

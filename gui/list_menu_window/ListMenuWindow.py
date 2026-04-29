@@ -2,7 +2,6 @@ import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget
 
 from global_manager import config
 from pyqt.qt5.components.list_menu import *
@@ -22,9 +21,10 @@ class ListMenuWindow(TransparentWindow):
         super(ListMenuWindow, self).__init__(x, y, w, h)
         self.toggle_visibility_signal.connect(self.toggle_visibility)
 
-        self.setStyleSheet("""
+        self.central_widget.setStyleSheet("""
         ListMenuItem {
             background-color: rgba(240, 248, 255, 99);
+            color: black;
             padding: 1px 3px;
             border-radius: 7px;
             border: 1px solid rgb(255, 223, 0);

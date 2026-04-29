@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+from PyQt5.QtWidgets import QWidget
+
 from .Knight_anim_maps import *
 from ..HollowKnightSpriteAbs import HollowKnightSpriteAbs
 
@@ -9,9 +11,9 @@ class KnightSpriteAbs(HollowKnightSpriteAbs):
     def __init__(
             self,
             sprite_name: str, setup_ani_state: str,
-            resources_root: str
+            resources_root: str, parent: QWidget,
     ):
-        super().__init__(sprite_name, setup_ani_state, resources_root)
+        super().__init__(sprite_name, setup_ani_state, resources_root, parent)
         pass
 
     @abstractmethod

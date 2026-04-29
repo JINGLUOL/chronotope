@@ -1,6 +1,5 @@
 import sys
 import threading
-from functools import partial
 
 import pygame
 from PyQt5.QtGui import QIcon
@@ -8,8 +7,9 @@ from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
 from app_work import gk_work
 from c_os.keyboard import GlobalKeyboardListener
-from global_manager import resources, screen
+from global_manager import resources, config
 from gui import *
+from gui import sprites_window, piano_window
 
 app = QApplication(sys.argv)
 app.setQuitOnLastWindowClosed(False)
@@ -18,7 +18,8 @@ pygame.init()
 app_icon = QIcon(resources.icon)
 
 menu_window = ListMenuWindow(
-    screen.x, screen.y, screen.width, screen.height,
+    config.screen_root.x, config.screen_root.y,
+    config.screen_root.width, config.screen_root.height,
     list_width=430, list_height=670, item_height=67
 )
 menu_window.setWindowIcon(app_icon)
@@ -52,10 +53,6 @@ def app_exit():
 
 
 if __name__ == '__main__':
-
-    sprites_window = SpritesWindow(screen.x, screen.y, screen.width, screen.height)
-    """ 精灵窗口 """
-
     """ 菜单窗口 """
     menu_window.load_data({
         '关闭菜单': menu_window.hide,
@@ -64,41 +61,17 @@ if __name__ == '__main__':
         '工具': {
             '脚本运行器': py_exec_window,
             '二维码生成器': qr_code_window,
-            '国开': {
-                '复制报名材料列表': gk_work.copy_materials_list,
-                '姓名加证件号后四位转证件号': gk_work.name_id4_to_card_id,
-                '打印材料': gk_work.print_materials,
-            },
+            '视频播放器': video_window,
+            '国开': gk_work.menu_config,
         },
         '娱乐': {
-            '桌面精灵': {
-                '显示/隐藏': sprites_window.toggle_visibility,
-                '添加一只小骑士': sprites_window.create_knight_sprite,
-                '添加一只大黄蜂': sprites_window.create_hornet_sprite,
-                '清除所有精灵': sprites_window.clear_sprites,
-            },
-            '钢琴': {
-                '显示/隐藏': piano_window.piano_toggle_visibility,
-                '琴键生成': {
-                    '3个八度': partial(piano_window.create_piano, octaves=3),
-                    '5个八度': partial(piano_window.create_piano, octaves=5),
-                    '7个八度': partial(piano_window.create_piano, octaves=7),
-                },
-                '模式选择': {
-                    '经典模式': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.NONE),
-                    '练习模式': {
-                        '简单': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.EASY),
-                        '普通': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.NORMAL),
-                        '困难': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.HARD),
-                        '地狱': partial(piano_window.set_difficulty, difficulty=piano_window.PracticeLevel.HELL),
-                    }
-                },
-                '关闭': piano_window.delete_piano_window,
-            },
+            '桌面精灵': sprites_window.menu_config,
+            '钢琴': piano_window.menu_config,
         },
-        # '设置': print,
+        '设置': print,
         '退出应用': app_exit,
     })
+    menu_window.setStyleSheet(open(resources.app_stylesheet, encoding="utf-8").read())
 
     # 创建托盘图标
     tray_icon = QSystemTrayIcon(app_icon)

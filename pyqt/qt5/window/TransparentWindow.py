@@ -1,5 +1,7 @@
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve
-from PyQt5.QtWidgets import QMainWindow, QWidget
+from PyQt5.QtWidgets import QMainWindow
+
+from ..components.CWidget import CWidget
 
 
 class TransparentWindow(QMainWindow):
@@ -35,7 +37,7 @@ class TransparentWindow(QMainWindow):
         self.close_anim.finished.connect(super().destroy)
 
         # 创建中央部件
-        self.central_widget = QWidget(self)
+        self.central_widget = CWidget(self)
         self.setCentralWidget(self.central_widget)
         pass
 

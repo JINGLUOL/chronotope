@@ -9,6 +9,7 @@ from util.file.image.qr_code import create_qr_code
 class QRCodeCreator(QWidget):
     def __init__(self, parent=None):
         super(QRCodeCreator, self).__init__(parent, Qt.Window)
+        self.setWindowTitle('二维码生成器')
 
         self.page_controller = QStackedWidget()
         ''' 页面控制器 '''
@@ -31,7 +32,6 @@ class QRCodeCreator(QWidget):
         pass
 
     def init_ui(self):
-        super(QRCodeCreator, self).__init__()
         layout = QVBoxLayout(self)
 
         header = QHBoxLayout()

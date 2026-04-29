@@ -1,4 +1,4 @@
-__all__ = ['config', 'resources', 'screen', 'log']
+__all__ = ['config', 'resources', 'log']
 
 import atexit
 import os
@@ -104,7 +104,6 @@ class Config:
 
 
 config: Config = Config()
-screen: Screen = config.screen_root
 
 
 def log(*message: Any) -> None:
@@ -148,6 +147,7 @@ class Resource:
         if not os.path.exists(self.data_folder):
             os.makedirs(self.data_folder)
 
+        self.app_stylesheet = exe_path('resources\\App_StyleSheets\\default_stylesheet.qss', True)
         self.Knight = exe_path('resources\\Sprites\\HollowKnight\\Knight', True)
         self.Hornet = exe_path('resources\\Sprites\\HollowKnight\\Hornet', True)
         self.SumatraPDF = exe_path('resources\\SumatraPDF\\SumatraPDF-3.6-64.exe', True)

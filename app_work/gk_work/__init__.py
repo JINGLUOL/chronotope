@@ -188,3 +188,10 @@ def print_materials(parent: TransparentWindow):
         pass
     data.to_excel(excel_path, index=False)
     pass
+
+
+menu_config = {
+    '复制报名材料列表': copy_materials_list,
+    '姓名加证件号后四位转证件号': name_id4_to_card_id,
+    '打印材料': print_materials,
+}

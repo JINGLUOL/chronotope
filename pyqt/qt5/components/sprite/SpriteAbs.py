@@ -1,14 +1,16 @@
 from abc import abstractmethod
 
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QMenu, QAction
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QMenu, QAction, QWidget
 
 from .SpriteStatus import SpriteStatus
 
 
 class SpriteAbs(QGraphicsPixmapItem):
 
-    def __init__(self, parent=None):
-        QGraphicsPixmapItem.__init__(self, parent)
+    def __init__(self, parent: QWidget):
+        QGraphicsPixmapItem.__init__(self)
+        self.parent = parent
 
         self.sprite_x = 0
         """ X 轴值 """
@@ -118,16 +120,16 @@ class SpriteAbs(QGraphicsPixmapItem):
         """ 帧动画绘制方法 """
         pass
 
-    def mouseDoubleClickEvent(self, event):
-        super().mouseDoubleClickEvent(event)
-
-        if self.pre_click_sprite_state:
-            self.sprite_state = self.pre_click_sprite_state
-            self.pre_click_sprite_state = None
-        else:
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
             self.pre_click_sprite_state = self.sprite_state
             self.sprite_state = SpriteStatus.CLICKED
-            pass
+        pass
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.sprite_state = self.pre_click_sprite_state
+            self.pre_click_sprite_state = None
         pass
 
     pass
