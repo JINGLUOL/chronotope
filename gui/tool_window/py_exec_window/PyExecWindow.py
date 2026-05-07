@@ -16,7 +16,7 @@ class PyExecWindow(QWidget):
         ''' 执行对象 '''
 
         self.args_input = QTextEdit()
-        ''' 执行文件地址输入框 '''
+        ''' 执行参数 '''
         self.exec_path_input = QLineEdit()
         ''' 执行文件地址输入框 '''
 

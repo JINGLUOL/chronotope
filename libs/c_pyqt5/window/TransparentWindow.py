@@ -1,12 +1,10 @@
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout
 
-from ..components import CWidget
-
 
 class TransparentWindow(QMainWindow):
 
-    def __init__(self, x: int, y: int, width: int, height: int, full_op: bool = True):
+    def __init__(self, x: int, y: int, width: int, height: int):
         super().__init__()
         # 设置窗口标识
         self.setWindowFlags(
@@ -18,11 +16,8 @@ class TransparentWindow(QMainWindow):
 
         # 设置窗口背景透明
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)  # 允许透明绘制
-        if full_op:
-            self.setAttribute(Qt.WA_TranslucentBackground)  # 透明背景
-            self.setAttribute(Qt.WA_NoSystemBackground)  # 禁止系统背景
-        # 设置窗口大小和位置
-        self.setGeometry(x, y, width, height)
+        self.setAttribute(Qt.WA_TranslucentBackground)  # 透明背景
+        self.setAttribute(Qt.WA_NoSystemBackground)  # 禁止系统背景
 
         # 显示窗口动画
         self.show_anim = QPropertyAnimation(self, b"windowOpacity")
@@ -49,14 +44,18 @@ class TransparentWindow(QMainWindow):
         self.close_anim.finished.connect(super().destroy)
 
         # 创建中央部件
-        self.central_widget = CWidget(self)
+        self.central_widget = QWidget(self)
+        self.central_widget.setObjectName("TWC")
         self.layout = QVBoxLayout(self.central_widget)
         self.setCentralWidget(self.central_widget)
+
+        # 设置窗口大小和位置
+        self.setGeometry(x, y, width, height)
         pass
 
     @classmethod
-    def from_widget(cls, widget: QWidget, full_op: bool = True):
-        return cls(widget.x(), widget.y(), widget.width(), widget.height(), full_op)
+    def from_widget(cls, widget: QWidget):
+        return cls(widget.x(), widget.y(), widget.width(), widget.height())
 
     def toggle_visibility(self):
         if self.isVisible():

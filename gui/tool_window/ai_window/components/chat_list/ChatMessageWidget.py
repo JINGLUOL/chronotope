@@ -18,6 +18,7 @@ class ChatMessageWidget(QWidget):
 
         # 消息体标签
         self.msg_label = msg_label = QLabel(text)
+        self.msg_label.setMaximumWidth(self.parent().width() - 99)
         msg_label.setWordWrap(True)  # 开启自动换行
         msg_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
@@ -43,7 +44,7 @@ class ChatMessageWidget(QWidget):
         pass
 
     def update_msg(self, new_msg: str):
-        self.msg_label.setText(self.msg_label.text() + new_msg)
+        self.msg_label.setText(new_msg)
         self._update_list_item_size()
         pass
 

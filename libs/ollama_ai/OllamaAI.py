@@ -1,5 +1,5 @@
 import json
-from typing import Callable
+from typing import Callable, Any
 
 import requests
 
@@ -7,6 +7,8 @@ import requests
 class OllamaAI:
 
     def __init__(self, model: str = None):
+        self.req_protocol = 'http'
+        ''' 请求协议 '''
         self.ip = 'localhost'
         ''' 访问地址 '''
         self.port = 11434
@@ -18,7 +20,7 @@ class OllamaAI:
         pass
 
     def _get_url(self, api):
-        return f'http://{self.ip}:{self.port}{api}'
+        return f'{self.req_protocol}://{self.ip}:{self.port}{api}'
 
     def _get(self, api):
         try:
@@ -28,7 +30,7 @@ class OllamaAI:
             print("Network anomaly")
         return None
 
-    def _post(self, api: str, data: str, callback: Callable[[str], None]) -> bool:
+    def _post(self, api: str, data: str, callback: Callable[[Any], None]) -> bool:
         try:
             if self.stream:
                 with requests.post(
@@ -62,7 +64,7 @@ class OllamaAI:
         """ 获取激活的模型列表 """
         return self._get("/api/ps")
 
-    def generate(self, data: str, callback: Callable[[str], None]):
+    def generate(self, data: str, callback: Callable[[Any], None]):
         """ 生成 """
         data = json.dumps({
             "model": self.model,
@@ -71,7 +73,7 @@ class OllamaAI:
         })
         return self._post("/api/generate", data, callback)
 
-    def chat(self, data: list[dict], callback: Callable[[str], None]):
+    def chat(self, data: list[dict], callback: Callable[[Any], None]):
         """ 聊天 """
         data = json.dumps({
             "model": self.model,
