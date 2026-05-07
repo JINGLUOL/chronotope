@@ -5,14 +5,15 @@ import pygame
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
-from app_work import gk_work
-from c_os.keyboard import GlobalKeyboardListener
+from app_work.tool_work import gk_work
+from util.c_os.keyboard import GlobalKeyboardListener
 from global_manager import resources, config
-from gui import *
-from gui import sprites_window, piano_window
+from gui import tool_window, ListMenuWindow
+from gui.game_window import sprites_window, piano_window, go_game_window
 
 app = QApplication(sys.argv)
 app.setQuitOnLastWindowClosed(False)
+app.setStyleSheet(open(resources.app_stylesheet, encoding="utf-8").read())
 pygame.init()
 
 app_icon = QIcon(resources.icon)
@@ -24,6 +25,11 @@ menu_window = ListMenuWindow(
 )
 menu_window.setWindowIcon(app_icon)
 """ 应用菜单 """
+
+
+def app_reset_stylesheet():
+    app.setStyleSheet(open(resources.app_stylesheet, encoding="utf-8").read())
+    pass
 
 
 def app_show():
@@ -59,19 +65,21 @@ if __name__ == '__main__':
         '显示所有窗口': app_show,
         '隐藏所有窗口': app_hide,
         '工具': {
-            '脚本运行器': py_exec_window,
-            '二维码生成器': qr_code_window,
-            '视频播放器': video_window,
+            '脚本运行器': tool_window.py_exec_window,
+            '二维码生成器': tool_window.qr_code_window,
+            '视频播放器': tool_window.video_window,
             '国开': gk_work.menu_config,
         },
         '娱乐': {
             '桌面精灵': sprites_window.menu_config,
             '钢琴': piano_window.menu_config,
+            '围棋': go_game_window.go_game_window
         },
-        '设置': print,
+        '设置': {
+            '重载样式表': app_reset_stylesheet
+        },
         '退出应用': app_exit,
     })
-    menu_window.setStyleSheet(open(resources.app_stylesheet, encoding="utf-8").read())
 
     # 创建托盘图标
     tray_icon = QSystemTrayIcon(app_icon)

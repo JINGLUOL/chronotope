@@ -2,10 +2,11 @@ import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
+from PyQt5.QtCore import Qt
 
 from global_manager import config
-from pyqt.qt5.components.list_menu import *
-from pyqt.qt5.window import TransparentWindow
+from .list_menu import *
+from libs.c_pyqt5.window import TransparentWindow
 
 
 class ListMenuWindow(TransparentWindow):
@@ -21,54 +22,21 @@ class ListMenuWindow(TransparentWindow):
         super(ListMenuWindow, self).__init__(x, y, w, h)
         self.toggle_visibility_signal.connect(self.toggle_visibility)
 
-        self.central_widget.setStyleSheet("""
-        ListMenuItem {
-            background-color: rgba(240, 248, 255, 99);
-            color: black;
-            padding: 1px 3px;
-            border-radius: 7px;
-            border: 1px solid rgb(255, 223, 0);
-            padding: 13px 7px;
-        }
-        ListMenuItem::item {
-            background-color: qlineargradient(
-                x1:0, y1:0, x2:0, y2:1,
-                stop:0 rgba(255, 255, 255, 255)
-                stop:1 rgba(235, 135, 97, 211)
-            );
-            border: 1px solid rgb(255, 223, 0);
-            margin-bottom: 7px;
-            padding-left: 23px;
-            border-radius: 7px;
-        }
-        ListMenuItem::item:hover {
-            background-color: qlineargradient(
-                x1:0, y1:0, x2:0, y2:1,
-                stop:0 rgba(183, 110, 121, 255),
-                stop:1 rgba(0, 0, 0, 211)
-            );
-            border: 1px solid rgb(184, 134, 11);
-            color: rgb(255, 255, 255);
-        }
-        """)
-
-        self.mouse_y: int = 0
-
-        # 组件参数
         self.item_height = item_height
+        ''' 列表项高度 '''
 
-        # 列表宽高
+        # 定义列表宽高
         self.list_width = list_width
         self.list_height = list_height
 
-        # 组件事件映射表
         self.item_event_map = {}
+        ''' 列表项事件映射表 '''
 
-        # 上一个显示的列表
         self.pre_item_list_map: dict[int, ListMenuItem] = {}
+        ''' 已显示列表深度映射表 '''
 
-        # 初始化菜单
         self.root_list: ListMenuItem | None = None
+        ''' 主菜单 '''
         if data: self.load_data(data)
 
         self.is_locked: bool = False
@@ -112,7 +80,7 @@ class ListMenuWindow(TransparentWindow):
         pass
 
     def clicked_item_handle(self, item: MenuListItem):
-        if not item.item_list:
+        if not item.item_list and item.item_abs_path in self.item_event_map:
             call = self.item_event_map[item.item_abs_path]
             sig = inspect.signature(call)
             params = sig.parameters

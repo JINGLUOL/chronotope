@@ -11,7 +11,7 @@ from typing import Any
 
 from pynput import mouse
 
-from c_os.screen import get_screens, Screen
+from util.c_os.screen import get_screens, Screen
 
 
 class Config:
