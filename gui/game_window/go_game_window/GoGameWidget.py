@@ -121,7 +121,7 @@ class GoGameWidget(QWidget):
         if not msg: return
 
         points = re.findall(r'\((-?\d+\.?\d*),\s*(-?\d+\.?\d*)\)', msg)
-        if not len(points): return
+        if len(points) == 0: return
         row, col = points[-1]
         if self.game.set_piece(int(row), int(col)):
             self.update()
