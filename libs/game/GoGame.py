@@ -23,6 +23,16 @@ class GoGame:
         self.game_over: bool = False
         pass
 
+    def reset_game(self):
+        self.chessboard = [[ChessPiece.EMPTY] * self.size for _ in range(self.size)]
+        self.current_player = ChessPiece.BLACK
+        self.history.clear()
+        self.black_captured = 0
+        self.white_captured = 0
+        self.pass_count = 0
+        self.game_over = False
+        pass
+
     def pass_move(self) -> int | None:
         """ 跳过当前回合 """
         if self.game_over:
@@ -147,9 +157,10 @@ class GoGame:
                 res.append((r, c))
         return res
 
-    def get_opponent(self):
+    def get_opponent(self, current_player=None):
         """ 获取对手 """
-        return ChessPiece.WHITE if self.current_player is ChessPiece.BLACK else ChessPiece.BLACK
+        if current_player is None: current_player = self.current_player
+        return ChessPiece.WHITE if current_player is ChessPiece.BLACK else ChessPiece.BLACK
 
     def get_piece(self, x: int, y: int) -> int:
         """ 获取棋子 """

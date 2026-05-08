@@ -8,3 +8,7 @@ class ChessPiece:
     BLACK = 1
     WHITE = 2
     pass
+
+
+def get_piece_text(piece: int) -> str:
+    return '黑子' if piece == ChessPiece.BLACK else '白子'

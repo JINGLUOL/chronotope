@@ -12,7 +12,7 @@ class MessageSender(QWidget):
         super(MessageSender, self).__init__(parent)
 
         self.model_list = DynamicComboBox(get_models, self)
-        message = QTextEdit(self)
+        self.message = message = QTextEdit(self)
         enter = QPushButton('发送', self)
 
         layout = QHBoxLayout(self)
@@ -22,9 +22,7 @@ class MessageSender(QWidget):
 
         def send_message():
             content = message.toPlainText()
-            if content.strip():
-                self.send_signal.emit(content)
-                message.clear()
+            if content.strip(): self.send_signal.emit(content)
             pass
 
         enter.clicked.connect(send_message)

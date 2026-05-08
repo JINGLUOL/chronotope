@@ -6,9 +6,10 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
 from app_work.tool_work import gk_work
+from gui.list_menu_window import ListMenuWindow
 from util.c_os.keyboard import GlobalKeyboardListener
 from global_manager import resources, config
-from gui import tool_window, game_window, ListMenuWindow
+from gui import tool_window, game_window
 
 app = QApplication(sys.argv)
 app.setQuitOnLastWindowClosed(False)
