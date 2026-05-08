@@ -14,6 +14,8 @@ class GoGame:
         ''' 当前玩家 '''
         self.history: deque[tuple[int, int]] = deque(maxlen=3)
         ''' 历史步数 '''
+        self.last_history: tuple[int, int] | None = None
+        ''' 历史最后一步 '''
         self.black_captured: int = 0
         ''' 黑棋棋获 '''
         self.white_captured: int = 0
@@ -178,6 +180,7 @@ class GoGame:
 
         ''' 执行落子 '''
         self.history.append(pos)  # 记录步数
+        self.last_history = pos
         self.chessboard[x][y] = self.current_player  # 落子
         self.pass_count = 0
         ''' 提掉相邻无气的对方棋子 '''

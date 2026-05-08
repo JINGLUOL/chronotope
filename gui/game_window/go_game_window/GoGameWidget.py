@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 from PyQt5.QtCore import QPoint, Qt
@@ -118,21 +119,24 @@ class GoGameWidget(QWidget):
 
     def _ai_set_piece(self, msg: str):
         if not msg: return
-        x, y = msg.split('\n')[0].split(' ')
-        if self.game.set_piece(int(y), int(x)):
+
+        points = re.findall(r'\((-?\d+\.?\d*),\s*(-?\d+\.?\d*)\)', msg)
+        if not len(points): return
+        row, col = points[-1]
+        if self.game.set_piece(int(row), int(col)):
             self.update()
         else:
             self._run_ai()
         pass
 
     def _run_ai(self):
-        board_message = '\n'.join(' '.join(map(str, row)) for row in self.game.chessboard)
-        send_msg = f"{board_message}\n该你了。\n第一行先说你想要落子的坐标，格式：x y；"
         if self.first_send:
             opponent_piece = self.game.get_opponent(self.user_piece)
             opponent = get_piece_text(opponent_piece)
             user = get_piece_text(self.user_piece)
             piece_message = f"你执{opponent}，我执{user}。\n棋盘：\n"
+            board_message = '\n'.join(' '.join(map(str, row)) for row in self.game.chessboard)
+            send_msg = f"{board_message}\n该你了。\n请说出你想要落子的点，格式：(行,列)"
             ai = ai_window()
             if ai:
                 ai.send_message(game_message + piece_message + send_msg, self._ai_set_piece)
@@ -141,7 +145,7 @@ class GoGameWidget(QWidget):
             pass
         else:
             ai = ai_window()
-            if ai: ai.send_message(send_msg, self._ai_set_piece)
+            if ai: ai.send_message(str(self.game.last_history), self._ai_set_piece)
             pass
         pass
 
