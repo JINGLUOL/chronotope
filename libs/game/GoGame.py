@@ -29,6 +29,7 @@ class GoGame:
         self.chessboard = [[ChessPiece.EMPTY] * self.size for _ in range(self.size)]
         self.current_player = ChessPiece.BLACK
         self.history.clear()
+        self.last_history = None
         self.black_captured = 0
         self.white_captured = 0
         self.pass_count = 0

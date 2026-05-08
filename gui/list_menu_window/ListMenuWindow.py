@@ -165,11 +165,4 @@ class ListMenuWindow(TransparentWindow):
         self.pre_item_list_map.clear()
         pass
 
-    def keyReleaseEvent(self, a0):
-        key = a0.key()
-        if key == Qt.Key_Escape:
-            self.hide()
-            pass
-        pass
-
     pass

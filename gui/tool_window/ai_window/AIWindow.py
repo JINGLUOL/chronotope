@@ -69,6 +69,11 @@ class AIWindow(TransparentWindow):
         self.chat.update_message_slot.emit(Message(message))
         self.update_message_finished_signal.emit(message)
         self.ai_message.clear()
+
+        self.messages.append({
+            "role": "assistant",
+            "content": message
+        })
         if callback is not None: callback(message)
         pass
 

@@ -11,13 +11,6 @@ from libs.game.ChessPiece import get_piece_text
 
 GameModelsVal = ("单人", "多人", "AI")
 
-# f"围棋游戏\n{self.user_piece}代表{user}，{opponent_piece}代表{opponent}\n，{}"
-game_message = f"""陪我下一把围棋
-{ChessPiece.EMPTY}代表空置；
-{ChessPiece.BLACK}代表{get_piece_text(ChessPiece.BLACK)}；
-{ChessPiece.WHITE}代表{get_piece_text(ChessPiece.WHITE)}；
-"""
-
 
 @dataclass
 class GameModels:
@@ -101,6 +94,11 @@ class GoGameWidget(QWidget):
             QMessageBox.Yes | QMessageBox.No,  # 显示"是"和"否"按钮
             QMessageBox.Yes  # 默认选中"否"
         ) == QMessageBox.Yes else ChessPiece.WHITE
+
+        current_game_model = GameModelsVal[self.game_model.currentIndex()]
+        if self.user_piece == ChessPiece.WHITE and current_game_model is GameModels.AIPlay:
+            self._run_ai()
+            pass
         pass
 
     def _reset_game(self):
@@ -130,22 +128,27 @@ class GoGameWidget(QWidget):
         pass
 
     def _run_ai(self):
+        if self.game.last_history:
+            user_set = f"我的落子点为{self.game.last_history}"
+        else:
+            user_set = "你是先手"
+            pass
+
         if self.first_send:
+            game_message = f"陪我下一把围棋，棋盘大小为{self.game.size}*{self.game.size}，行和列的坐标都是从0开始数；"
             opponent_piece = self.game.get_opponent(self.user_piece)
             opponent = get_piece_text(opponent_piece)
             user = get_piece_text(self.user_piece)
-            piece_message = f"你执{opponent}，我执{user}。\n棋盘：\n"
-            board_message = '\n'.join(' '.join(map(str, row)) for row in self.game.chessboard)
-            send_msg = f"{board_message}\n该你了。\n请说出你想要落子的点，格式：(行,列)"
+            piece_message = f"你执{opponent}，我执{user}。\n请说出你想要落子的点，格式：(行,列)\n"
             ai = ai_window()
             if ai:
-                ai.send_message(game_message + piece_message + send_msg, self._ai_set_piece)
+                ai.send_message(game_message + piece_message + user_set, self._ai_set_piece)
                 self.first_send = False
                 pass
             pass
         else:
             ai = ai_window()
-            if ai: ai.send_message(str(self.game.last_history), self._ai_set_piece)
+            if ai: ai.send_message(user_set, self._ai_set_piece)
             pass
         pass
 

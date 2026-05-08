@@ -88,4 +88,11 @@ class TransparentWindow(QMainWindow):
         self.close_anim.start()
         pass
 
+    def keyReleaseEvent(self, a0):
+        key = a0.key()
+        if key == Qt.Key_Escape:
+            self.hide()
+            pass
+        pass
+
     pass
