@@ -11,10 +11,11 @@ def get_models() -> list[str]:
 
 
 def chat_with_ai(
+        model: str,
         message: list[dict],
         callback: Callable[[Any], None],
         finished_callback: Callable[[], None]
 ):
-    ai_api.chat(message, callback)
+    ai_api.chat(model, message, callback=callback)
     finished_callback()
     pass

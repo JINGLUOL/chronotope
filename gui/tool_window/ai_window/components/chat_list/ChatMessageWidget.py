@@ -44,7 +44,7 @@ class ChatMessageWidget(QWidget):
         pass
 
     def update_msg(self, new_msg: str):
-        self.msg_label.setText(new_msg)
+        self.msg_label.setText(self.msg_label.text() + new_msg)
         self._update_list_item_size()
         pass
 

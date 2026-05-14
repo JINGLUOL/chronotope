@@ -1,13 +1,11 @@
 import re
-from dataclasses import dataclass
 
-from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtCore import QPoint, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QPen, QBrush, QRadialGradient, QColor
 from PyQt5.QtWidgets import QLabel, QWidget, QComboBox, QPushButton, QHBoxLayout, QMessageBox
 
 from gui.tool_window import ai_window
-from libs.game import GoGame, ChessPiece
-from libs.game.ChessPiece import get_piece_text
+from libs.game.go_game import *
 
 GameModelsVal = ("单人", "多人", "AI")
 
@@ -21,16 +19,18 @@ class GameModels:
 
 
 class GoGameWidget(QWidget):
+    ai_set_piece_signal = pyqtSignal(str)
 
     def __init__(self, window, parent=None):
         super(GoGameWidget, self).__init__(parent)
+        self.ai_set_piece_signal.connect(self._ai_set_piece)
 
         self.window = window
         self.drag_pos = None
 
         self.game = GoGame()
         ''' 游戏对象 '''
-        self.user_piece = ChessPiece.BLACK
+        self.user_piece = Piece.BLACK
         ''' 用户棋子 '''
         self.is_started = False
         ''' 是否开局 '''
@@ -87,16 +87,16 @@ class GoGameWidget(QWidget):
 
     def _start_game(self):
         self._reset_game()
-        self.user_piece = ChessPiece.BLACK if QMessageBox.question(
+        self.user_piece = Piece.BLACK if QMessageBox.question(
             self,  # 父窗口
             "选择执棋方",  # 对话框标题
             "是否选择先手？",  # 询问内容
             QMessageBox.Yes | QMessageBox.No,  # 显示"是"和"否"按钮
             QMessageBox.Yes  # 默认选中"否"
-        ) == QMessageBox.Yes else ChessPiece.WHITE
+        ) == QMessageBox.Yes else Piece.WHITE
 
         current_game_model = GameModelsVal[self.game_model.currentIndex()]
-        if self.user_piece == ChessPiece.WHITE and current_game_model is GameModels.AIPlay:
+        if self.user_piece == Piece.WHITE and current_game_model is GameModels.AIPlay:
             self._run_ai()
             pass
         pass
@@ -121,34 +121,38 @@ class GoGameWidget(QWidget):
         points = re.findall(r'\((-?\d+\.?\d*),\s*(-?\d+\.?\d*)\)', msg)
         if len(points) == 0: return
         row, col = points[-1]
-        if self.game.set_piece(int(row), int(col)):
+        set_result = self.game.set_piece(int(row), int(col))
+        if set_result[1]:
             self.update()
         else:
-            self._run_ai()
+            self._run_ai(set_result[0])
         pass
 
-    def _run_ai(self):
-        if self.game.last_history:
-            user_set = f"我的落子点为{self.game.last_history}"
+    def _run_ai(self, tip: str = None):
+        if tip:
+            board_msg = f"当前棋盘状态：\n{'\n'.join(','.join(map(str, row)) for row in self.game.chessboard)}"
+            user_set = f"{board_msg}\n黑子：{Piece.BLACK}白子：{Piece.WHITE}\n{tip}\n"
+        elif self.game.last_history:
+            user_set = f"我的落子点为{self.game.last_history}，该你落子了。"
         else:
             user_set = "你是先手"
             pass
 
         if self.first_send:
-            game_message = f"陪我下一把围棋，棋盘大小为{self.game.size}*{self.game.size}，行和列的坐标都是从0开始数；"
+            game_message = f"陪我下一把围棋，棋盘大小为{self.game.size}*{self.game.size}，行和列的坐标都是从0开始数；\n"
             opponent_piece = self.game.get_opponent(self.user_piece)
             opponent = get_piece_text(opponent_piece)
             user = get_piece_text(self.user_piece)
-            piece_message = f"你执{opponent}，我执{user}。\n请说出你想要落子的点，格式：(行,列)\n"
+            piece_message = f"你执{opponent}，我执{user}。\n请在末尾说出你想要落子的点，格式：(行,列)\n"
             ai = ai_window()
             if ai:
-                ai.send_message(game_message + piece_message + user_set, self._ai_set_piece)
+                ai.send_message(game_message + piece_message + user_set, self.ai_set_piece_signal.emit)
                 self.first_send = False
                 pass
             pass
         else:
             ai = ai_window()
-            if ai: ai.send_message(user_set, self._ai_set_piece)
+            if ai: ai.send_message(user_set, self.ai_set_piece_signal.emit)
             pass
         pass
 
@@ -181,12 +185,12 @@ class GoGameWidget(QWidget):
         for r in range(self.game.size):
             for c in range(self.game.size):
                 piece = self.game.get_piece(r, c)
-                if piece is ChessPiece.EMPTY: continue
+                if piece is Piece.EMPTY: continue
 
                 row = self.margin + r * self.grid_size
                 col = self.margin + c * self.grid_size
                 gradient = QRadialGradient(col - self.piece_r / 2, row - self.piece_r / 2, self.piece_r)
-                if piece is ChessPiece.BLACK:
+                if piece is Piece.BLACK:
                     gradient.setColorAt(0, QColor(80, 80, 80))
                     gradient.setColorAt(1, QColor(20, 20, 20))
                 else:
@@ -204,10 +208,10 @@ class GoGameWidget(QWidget):
         self.draw_board(painter)
         self.draw_pieces(painter)
         # 当前回合
-        current_player = '黑棋回合' if self.game.current_player is ChessPiece.BLACK else '白棋回合'
+        current_player = '黑棋回合' if self.game.current_player is Piece.BLACK else '白棋回合'
         scores = self.game.calculate_scores()
-        b_scores = f"黑棋方得分: {scores[ChessPiece.BLACK]}"
-        w_scores = f"白棋方得分: {scores[ChessPiece.WHITE]}"
+        b_scores = f"黑棋方得分: {scores[Piece.BLACK]}"
+        w_scores = f"白棋方得分: {scores[Piece.WHITE]}"
         self.panel.setText('   '.join([
             current_player,
             b_scores,
@@ -243,7 +247,8 @@ class GoGameWidget(QWidget):
             if o_y > self.piece_r: y += 1
 
             # 落子
-            if self.game.set_piece(y, x):
+            set_result = self.game.set_piece(y, x)
+            if set_result[1]:
                 # 重绘棋盘
                 self.update()
                 # 当对弈为AI时

@@ -1,11 +1,10 @@
 import threading
-from functools import partial
 from typing import Any, Callable
 
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 
 from app_work.tool_work.ai_window_work import ChatWidgetMessage as Message
-from app_work.tool_work.ai_window_work.api import chat_with_ai, ai_api
+from app_work.tool_work.ai_window_work.api import chat_with_ai
 from libs.c_pyqt5.window import TransparentWindow
 from libs.ollama_ai import ChatResp
 from .components import MessageSender
@@ -13,29 +12,35 @@ from .components.chat_list import ChatWidget
 
 
 class AIWindow(TransparentWindow):
-    update_message_finished_signal = pyqtSignal(str)
+    ai_send_finished_solt = pyqtSignal()
 
     def __init__(self):
         super(AIWindow, self).__init__(0, 0, 833, 1333)
+        self.ai_send_finished_solt.connect(self._ai_send_finished)
+
+        self._lock = threading.Lock()
+        ''' AI回复加载锁 '''
+        self._msg_buffer = []
+        ''' AI回复缓存列表 '''
+        self._update_timer = QTimer()
+        ''' AI回复更新器 '''
+        self.fps: int = 30
+        ''' AI回复更新器更新频率 '''
+        self._ai_sending: bool = False
+        ''' AI回复锁定变量 '''
+        self._ai_send_finished_callback: Callable[[str], None] | None = None
+        ''' AI回复结束回调 '''
+
+        self._update_timer.timeout.connect(self._update_ai_resp)
 
         self.messages = []
         ''' 已加载的消息列表 '''
-        self.ai_message: list[str] = []
-        ''' 存储的AI回复 '''
-        self.ai_message_max_len = 99
-        ''' 存储AI回复最大长度 '''
-        self.fps: int = 60
-        ''' 更新AI回复的频率 '''
-
-        self.update_timer = QTimer()
-        ''' 更新AI回复的对象 '''
-        self.update_timer.timeout.connect(self._update_message_widget)
 
         self.chat = ChatWidget(self)
         ''' 消息窗口 '''
         self.sender = MessageSender(self)
         ''' 发送消息的窗口 '''
-        self.sender.send_signal.connect(self.send_message)
+        self.sender.send_slot.connect(self.send_message)
 
         self.layout.addWidget(self.chat, 9)
         self.layout.addWidget(self.sender, 1)
@@ -44,41 +49,46 @@ class AIWindow(TransparentWindow):
         ''' 拖动窗口的缓存相对坐标 '''
         pass
 
-    def _update_message(self, message: Any):
+    def _buffer_ai_resp(self, message: Any):
         """ 更新AI答复到缓存列表 """
         resp = ChatResp(message)
-        self.ai_message.append(resp.message.content)
-        if len(self.ai_message) % self.ai_message_max_len == 0:
-            ai_message = ''.join(self.ai_message)
-            self.ai_message.clear()
-            self.ai_message.append(ai_message)
+        with self._lock:
+            self._msg_buffer.append(resp.message.content)
             pass
         pass
 
-    def _update_message_widget(self):
-        """ 更新AI答复到消息窗口 """
-        self.chat.update_message_slot.emit(
-            Message(''.join(self.ai_message))
-        )
+    def _update_ai_resp(self):
+        # 更新AI答复到消息窗口
+        with self._lock:
+            if not self._msg_buffer: return
+            self.chat.update_message_slot.emit(Message(
+                ''.join(self._msg_buffer),
+            ))
+            self._msg_buffer.clear()
+            pass
         pass
 
-    def _update_message_finished(self, callback: Callable[[str], None]):
+    def _ai_send_finished(self):
         """ AI结束答复的回调 """
-        self.update_timer.stop()
-        message = ''.join(self.ai_message)
-        self.chat.update_message_slot.emit(Message(message))
-        self.update_message_finished_signal.emit(message)
-        self.ai_message.clear()
+        self._update_timer.stop()
+        self._update_ai_resp()
 
+        message = self.chat.pre_bubble.msg_label.text()
         self.messages.append({
             "role": "assistant",
             "content": message
         })
+        self._ai_sending = False
+        callback = self._ai_send_finished_callback
+        self._ai_send_finished_callback = None
         if callback is not None: callback(message)
         pass
 
-    def send_message(self, text: str, callback: Callable[[str], None]=None):
-        if self.update_timer.isActive(): return
+    def send_message(self, text: str, callback: Callable[[str], None] = None):
+        if self._ai_sending: return
+        self._ai_send_finished_callback = callback
+        self._ai_sending = True
+        self._update_timer.start(int(1000 / self.fps))
 
         self.sender.message.clear()
         message = Message(text, is_self=True)
@@ -89,17 +99,15 @@ class AIWindow(TransparentWindow):
 
         self.chat.add_message(message)
 
-        ai_api.model = self.sender.model_list.currentText()
+        model = self.sender.model_list.currentText()
         self.chat.add_message(Message(''))
-
-        self.update_timer.setInterval(int(1000 / self.fps))  # 设置AI回复更新到组件的频率
-        self.update_timer.start()
 
         threading.Thread(
             target=chat_with_ai,
             args=[
-                self.messages, self._update_message,
-                partial(self._update_message_finished, callback)
+                model, self.messages,
+                self._buffer_ai_resp,
+                self.ai_send_finished_solt.emit
             ]
         ).start()
         pass

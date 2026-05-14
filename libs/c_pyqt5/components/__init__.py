@@ -1,2 +1,1 @@
 from .GraphicsTextRectItem import GraphicsTextRectItem
-from .DynamicComboBox import DynamicComboBox

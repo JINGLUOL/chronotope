@@ -3,7 +3,7 @@ from typing import Callable
 from PyQt5.QtCore import QTimer
 
 
-class Timer:
+class CTimer:
     def __init__(self):
         self.interval: int = 16  # 60FPS
 
@@ -39,4 +39,4 @@ class Timer:
     pass
 
 
-timer = Timer()
+timer = CTimer()

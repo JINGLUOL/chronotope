@@ -11,7 +11,7 @@ from .InputAreaDialog import InputAreaDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QLinearGradient, QFont, QFontMetrics
 
-from .Timer import timer
+from .CTimer import timer
 
 
 def create_gradient_pixmap(
