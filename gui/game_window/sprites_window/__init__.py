@@ -1,24 +1,23 @@
 from dataclasses import dataclass
 from functools import partial
 
-from libs.c_pyqt5.window import TransparentWindow
-from app_work.game_work.sprite import SpriteAbs
 from app_work.game_work.sprite import KnightSprite, HornetSprite
+from app_work.game_work.sprite import SpriteAbs
 from .SpritesWindow import SpritesWindow
 
 window: SpritesWindow | None = None
 """ 精灵窗口 """
 
 
-def create_window(parent: TransparentWindow) -> SpritesWindow:
+def create_window() -> SpritesWindow:
     global window
     if window: return window
-    window = SpritesWindow.from_widget(parent)
+    window = SpritesWindow()
     window.show()
     return window
 
 
-def toggle_visibility(parent: TransparentWindow):
+def toggle_visibility():
     global window
     if window:
         if window.isVisible():
@@ -26,7 +25,7 @@ def toggle_visibility(parent: TransparentWindow):
         else:
             window.show()
     else:
-        create_window(parent)
+        create_window()
     pass
 
 
@@ -37,8 +36,8 @@ class Sprites:
     pass
 
 
-def create_sprite(parent: TransparentWindow, sprite: Sprites):
-    w = create_window(parent)
+def create_sprite(sprite: Sprites):
+    w = create_window()
     if sprite is Sprites.KNight:
         sprite = KnightSprite(w)
     elif sprite is Sprites.Hornet:
@@ -50,8 +49,8 @@ def create_sprite(parent: TransparentWindow, sprite: Sprites):
     pass
 
 
-def clear_sprites(parent: TransparentWindow):
-    create_window(parent).clear_sprites()
+def clear_sprites():
+    create_window().clear_sprites()
     pass
 
 

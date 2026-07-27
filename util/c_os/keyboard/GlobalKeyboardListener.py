@@ -108,6 +108,7 @@ class GlobalKeyboardListener:
                 on_release=self.on_release
             )
             self.listener.start()
+            pass
 
         threading.Thread(target=work, daemon=True).start()
         log("键盘监听已启动")

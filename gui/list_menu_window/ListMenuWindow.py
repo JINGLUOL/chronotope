@@ -2,11 +2,10 @@ import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
 
 from global_manager import config
-from .list_menu import *
 from libs.c_pyqt5.window import TransparentWindow
+from .list_menu import *
 
 
 class ListMenuWindow(TransparentWindow):
@@ -14,12 +13,11 @@ class ListMenuWindow(TransparentWindow):
 
     def __init__(
             self,
-            x: int, y: int, w: int, h: int,
             data: dict[str, Callable[[], None] | Any] | None = None,
             list_width: int = 433, list_height: int = 707,
             item_height: int = 77,
     ):
-        super(ListMenuWindow, self).__init__(x, y, w, h)
+        super(ListMenuWindow, self).__init__()
         self.toggle_visibility_signal.connect(self.toggle_visibility)
 
         self.item_height = item_height
@@ -81,13 +79,14 @@ class ListMenuWindow(TransparentWindow):
 
     def clicked_item_handle(self, item: MenuListItem):
         if not item.item_list and item.item_abs_path in self.item_event_map:
-            call = self.item_event_map[item.item_abs_path]
-            sig = inspect.signature(call)
-            params = sig.parameters
-            if len(params) > 0:
-                call(self)
-            else:
-                call()
+            self.item_event_map[item.item_abs_path]()
+            # # 判断方法调用的参数数量
+            # sig = inspect.signature(call)
+            # params = sig.parameters
+            # if len(params) > 0:
+            #     call(self)
+            # else:
+            #     call()
             pass
         pass
 

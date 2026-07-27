@@ -4,8 +4,8 @@ import atexit
 import os
 import sys
 import threading
-import time
 import traceback
+from collections import deque
 from datetime import datetime
 from typing import Any
 
@@ -21,7 +21,7 @@ class Config:
         self.lock = threading.Lock()
 
         # 日志缓存
-        self._logs: list[Any] = []
+        self._logs: deque[Any] = deque(maxlen=3000)
         self.has_error = False
 
         # 添加程序结束回调
@@ -84,21 +84,30 @@ class Config:
             self, *content: Any, sep: str = ' ', end: str = '\n',
             write: bool = False
     ):
-        with self.lock:
-            date = datetime.now()
-            content = f"{date:%H:%M:%S} --- {time.time():06f} ---> {sep.join([str(ctt) for ctt in content])}"
-            print(content)
-            self._logs.append(content)
+        now = datetime.now()
+        time_str = f"{now.hour:02d}_{now.minute:02d}_{now.second:02d}.{(now.microsecond//1000):03d}"
+        content = f"{time_str} ---> {sep.join([str(ctt) for ctt in content])}"
+        print(content)
+        self._logs.append(content)
 
-            if (len(self._logs) >= 3000 or write) and self.has_error:
+        if write and self.has_error:
+            with self.lock:
                 output_path = resources.output_log(
-                    f'program log---{time.time()}',
-                    date.strftime("%Y_%m_%d"),
+                    f'program log---{time_str}',
+                    f"\\{now.strftime('%Y_%m_%d')}",
                 )
                 open(output_path, encoding="utf-8", mode="w").write(end.join(self._logs))
                 self._logs.clear()
+                pass
             pass
+
         pass
+
+    def get_focus_screen(self) -> Screen:
+        for screen in self.screens.values():
+            if screen.is_include(self.mouse_x, self.mouse_y):
+                return screen
+        return self.screen_root
 
     pass
 

@@ -1,13 +1,14 @@
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import QPainter, QBrush
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
+
+import global_manager
 
 
 class GraphicsTransWindow(QGraphicsView):
 
-    def __init__(self, x: int, y: int, w: int, h: int):
+    def __init__(self):
         super(GraphicsTransWindow, self).__init__()
-        self.setGeometry(x, y, w, h)
 
         self._init_window()
 
@@ -36,7 +37,7 @@ class GraphicsTransWindow(QGraphicsView):
         self.close_anim.finished.connect(self.close_window)
 
         # 创建场景
-        self.scene = QGraphicsScene(0, 0, w, h)
+        self.scene = QGraphicsScene()
         self.scene.setBackgroundBrush(QBrush(Qt.transparent))
         self.setScene(self.scene)
 
@@ -46,10 +47,6 @@ class GraphicsTransWindow(QGraphicsView):
         # self.scene.setFocusItem(None)
         # self.viewport().installEventFilter(self)
         pass
-
-    @classmethod
-    def from_widget(cls, widget: QWidget):
-        return cls(widget.x(), widget.y(), widget.width(), widget.height())
 
     def _init_window(self):
         # 设置窗口标识
@@ -105,6 +102,14 @@ class GraphicsTransWindow(QGraphicsView):
     def close_window(self):
         self.scene.clear()
         super().destroy()
+        pass
+
+    def show(self):
+        # 设置窗口大小和位置
+        screen_geometry = global_manager.config.get_focus_screen().get_geometry()
+        self.setGeometry(*screen_geometry)
+        self.scene.setSceneRect(*screen_geometry)
+        super().show()
         pass
 
     def showEvent(self, event):

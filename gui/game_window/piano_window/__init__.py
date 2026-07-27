@@ -1,12 +1,11 @@
 from functools import partial
 
-from libs.c_pyqt5.window import TransparentWindow
 from .PianoWindow import PianoWindow, PracticeLevel
 
 piano_window: PianoWindow | None = None
 
 
-def create_piano_window(parent: TransparentWindow, octaves: int = 3) -> PianoWindow:
+def create_piano_window(octaves: int = 3) -> PianoWindow:
     global piano_window
     if piano_window:
         if piano_window.octaves == octaves:
@@ -15,17 +14,17 @@ def create_piano_window(parent: TransparentWindow, octaves: int = 3) -> PianoWin
             piano_window.destroy()
             pass
         pass
-    piano_window = PianoWindow.from_widget(parent, octaves)
+    piano_window = PianoWindow(octaves)
     piano_window.show()
     return piano_window
 
 
-def create_piano(parent: TransparentWindow, octaves: int = 3) -> PianoWindow:
-    return create_piano_window(parent, octaves)
+def create_piano(octaves: int = 3) -> PianoWindow:
+    return create_piano_window(octaves)
 
 
-def set_difficulty(parent: TransparentWindow, difficulty: PracticeLevel = PracticeLevel.NONE) -> None:
-    create_piano(parent).set_practice_difficulty(difficulty)
+def set_difficulty(difficulty: PracticeLevel = PracticeLevel.NONE) -> None:
+    create_piano().set_practice_difficulty(difficulty)
     pass
 
 

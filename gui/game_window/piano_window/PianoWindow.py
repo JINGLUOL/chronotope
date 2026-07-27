@@ -4,13 +4,12 @@ from dataclasses import dataclass
 import pygame
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QLinearGradient, QFont, QPen
-from PyQt5.QtWidgets import QWidget
 
 from libs.c_pyqt5.components import GraphicsTextRectItem
 from libs.c_pyqt5.tool import create_gradient_pixmap, timer
+from libs.c_pyqt5.window import GraphicsTransWindow
 from .PianoKey import PianoKey, keyboard_map
 from .PianoSound import PianoSound
-from libs.c_pyqt5.window import GraphicsTransWindow
 
 
 @dataclass
@@ -37,8 +36,8 @@ class PracticeLevel:
 # 亮金色 (255, 223, 0)
 class PianoWindow(GraphicsTransWindow):
 
-    def __init__(self, x: int, y: int, w: int, h: int, octaves: int = 3):
-        super().__init__(x, y, w, h)
+    def __init__(self, octaves: int = 3):
+        super().__init__()
 
         self.key_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
         self.n_key_notes = ['1', '2', '3', '4', '5', '6', '7']
@@ -121,10 +120,6 @@ class PianoWindow(GraphicsTransWindow):
         # 更新面板
         self.update_panel()
         pass
-
-    @classmethod
-    def from_widget(cls, widget: QWidget, octaves: int = 3):
-        return cls(widget.x(), widget.y(), widget.width(), widget.height(), octaves)
 
     def _init_piano_panel(self) -> GraphicsTextRectItem:
         width = self.white_key_w * 10

@@ -6,10 +6,10 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QAction, QMenu
 
 from app_work.tool_work import gk_work
+from global_manager import resources
+from gui import tool_window, game_window
 from gui.list_menu_window import ListMenuWindow
 from util.c_os.keyboard import GlobalKeyboardListener
-from global_manager import resources, config
-from gui import tool_window, game_window
 
 app = QApplication(sys.argv)
 app.setQuitOnLastWindowClosed(False)
@@ -19,8 +19,6 @@ pygame.init()
 app_icon = QIcon(resources.icon)
 
 menu_window = ListMenuWindow(
-    config.screen_root.x, config.screen_root.y,
-    config.screen_root.width, config.screen_root.height,
     list_width=430, list_height=670, item_height=67
 )
 menu_window.setWindowIcon(app_icon)
@@ -89,6 +87,7 @@ if __name__ == '__main__':
     tray_menu = QMenu()
     # 添加菜单项
     quit_action = QAction("退出")
+    # noinspection PyUnresolvedReferences
     quit_action.triggered.connect(app_exit)
     tray_menu.addAction(quit_action)
     # menu.addSeparator()
@@ -108,6 +107,7 @@ if __name__ == '__main__':
         pass
 
 
+    # noinspection PyUnresolvedReferences
     tray_icon.activated.connect(tray_icon_activated)
     # 显示托盘图标
     tray_icon.show()

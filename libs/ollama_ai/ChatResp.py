@@ -1,7 +1,8 @@
 from . import ToolCall
+from ..jing_luo.json import JSONObject
 
 
-class ChatMessage:
+class ChatMessage(JSONObject):
     role = None
     ''' 角色 '''
     content = None
@@ -14,7 +15,7 @@ class ChatMessage:
     ''' ？ '''
 
     def __init__(self, data):
-        for key, value in data.items(): setattr(self, key, value)
+        super().__init__(data)
 
         if self.tool_calls: self.tool_calls = [ToolCall(tool_call) for tool_call in self.tool_calls]
         pass
@@ -22,7 +23,7 @@ class ChatMessage:
     pass
 
 
-class ChatResp:
+class ChatResp(JSONObject):
     model = None
     ''' 使用的模型 '''
     created_at = None
@@ -39,7 +40,7 @@ class ChatResp:
     logprobs = None
 
     def __init__(self, data):
-        for key, value in data.items(): setattr(self, key, value)
+        super().__init__(data)
 
         if self.message: self.message = ChatMessage(self.message)
         pass

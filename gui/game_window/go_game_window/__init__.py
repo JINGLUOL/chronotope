@@ -5,11 +5,8 @@ from .GoGameWindow import GoGameWindow
 window: GoGameWindow | None = None
 
 
-def go_game_window(parent=None) -> None:
+def go_game_window() -> None:
     global window
-    if window is None:
-        window = GoGameWindow()
-        if parent: window.setWindowIcon(parent.windowIcon())
-        pass
+    if window is None: window = GoGameWindow()
     window.toggle_visibility()
     pass

@@ -7,8 +7,8 @@ from app_work.game_work.sprite import SpriteAbs
 
 class SpritesWindow(GraphicsTransWindow):
 
-    def __init__(self, x: int, y: int, w: int, h: int):
-        super().__init__(x, y, w, h)
+    def __init__(self):
+        super().__init__()
 
         self.keys_pressed: set[int] = set()
         """ 按下的键集合 """

@@ -1,4 +1,7 @@
-class Model:
+from libs.jing_luo.json import JSONObject
+
+
+class Model(JSONObject):
     name: str
     model: str
     modified_at: str
@@ -7,17 +10,18 @@ class Model:
     details: dict
 
     def __init__(self, data: dict):
-        for key, value in data.items(): setattr(self, key, value)
+        super().__init__(data)
         pass
 
     pass
 
 
-class TagsResp:
+class TagsResp(JSONObject):
     models: list
 
     def __init__(self, data):
-        for key, value in data.items(): setattr(self, key, value)
+        super().__init__(data)
+
         self.models = [Model(model) for model in self.models]
         pass
 

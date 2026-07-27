@@ -1,10 +1,12 @@
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout
 
+import global_manager
+
 
 class TransparentWindow(QMainWindow):
 
-    def __init__(self, x: int, y: int, width: int, height: int):
+    def __init__(self):
         super().__init__()
         # 设置窗口标识
         self.setWindowFlags(
@@ -48,14 +50,7 @@ class TransparentWindow(QMainWindow):
         self.central_widget.setObjectName("TWC")
         self.layout = QVBoxLayout(self.central_widget)
         self.setCentralWidget(self.central_widget)
-
-        # 设置窗口大小和位置
-        self.setGeometry(x, y, width, height)
         pass
-
-    @classmethod
-    def from_widget(cls, widget: QWidget):
-        return cls(widget.x(), widget.y(), widget.width(), widget.height())
 
     def toggle_visibility(self):
         if self.isVisible():
@@ -68,6 +63,12 @@ class TransparentWindow(QMainWindow):
     def activate_window(self):
         self.raise_()  # 将窗口提到前面
         self.activateWindow()  # 激活窗口
+        pass
+
+    def show(self):
+        # 设置窗口大小和位置
+        self.setGeometry(*global_manager.config.get_focus_screen().get_geometry())
+        super().show()
         pass
 
     def showEvent(self, event):

@@ -33,7 +33,7 @@ class CTimer:
         try:
             self.timer.timeout.disconnect(callback)
         except Exception as e:
-            print('this connect is not exists(ignored error: disconnect):', e)
+            print('this connect is not exists(ignored error: disconnect signal error):', e)
         pass
 
     pass

@@ -18,6 +18,12 @@ class Screen:
     def get_height(self):
         return self.height
 
+    def get_geometry(self):
+        return self.x, self.y, self.width, self.height
+
+    def is_include(self, x, y):
+        return self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height
+
     pass
 
 
