@@ -5,11 +5,10 @@ from .PyExecWindow import PyExecWindow
 window: PyExecWindow | None = None
 
 
-def py_exec_window(parent=None) -> None:
+def py_exec_window() -> None:
     global window
     if window is None:
         window = PyExecWindow()
-        if parent: window.setWindowIcon(parent.windowIcon())
         pass
     if window.isVisible():
         window.close()

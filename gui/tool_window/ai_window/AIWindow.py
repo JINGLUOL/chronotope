@@ -15,7 +15,8 @@ class AIWindow(TransparentWindow):
     ai_send_finished_solt = pyqtSignal()
 
     def __init__(self):
-        super(AIWindow, self).__init__(0, 0, 833, 1333)
+        super(AIWindow, self).__init__(False)
+        self.setGeometry(0, 0, 833, 1333)
         self.ai_send_finished_solt.connect(self._ai_send_finished)
 
         self._lock = threading.Lock()

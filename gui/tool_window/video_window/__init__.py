@@ -5,12 +5,10 @@ from .VideoWindow import VideoWindow
 window: VideoWindow | None = None
 
 
-def video_window(parent=None) -> None:
+def video_window() -> None:
     global window
-    if window is None:
-        window = VideoWindow()
-        if parent: window.setWindowIcon(parent.windowIcon())
-        pass
+    if window is None: window = VideoWindow()
+
     if window.isVisible():
         window.close()
     else:

@@ -5,11 +5,10 @@ from .QRCodeCreator import QRCodeCreator
 window: QRCodeCreator | None = None
 
 
-def qr_code_window(parent=None) -> None:
+def qr_code_window() -> None:
     global window
     if window is None:
         window = QRCodeCreator()
-        if parent: window.setWindowIcon(parent.windowIcon())
         pass
     if window.isVisible():
         window.close()
