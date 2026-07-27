@@ -16,8 +16,6 @@ class SpritesWindow(GraphicsTransWindow):
         self.sprites: set[SpriteAbs] = set()
         """ 精灵集合 """
 
-        self._to_clear_sprites: bool = False
-        """ 是否删除所有精灵 """
         pass
 
     def add_sprite(self, sprite: SpriteAbs):
@@ -29,20 +27,12 @@ class SpritesWindow(GraphicsTransWindow):
         pass
 
     def clear_sprites(self):
-        self._to_clear_sprites = True
+        self.sprites.clear()
+        self.scene.clear()
         pass
 
     def game_loop(self):
         # scene_rect = self.scene.sceneRect()
-        if self._to_clear_sprites:
-            for sprite in self.sprites:
-                self.scene.removeItem(sprite)
-                self.scene.removeItem(sprite.transition_item)
-                self.scene.removeItem(sprite.effect_item)
-                pass
-            self.sprites.clear()
-            self._to_clear_sprites = False
-            pass
 
         # 更新所有精灵
         for sprite in self.sprites:

@@ -6,8 +6,12 @@ import global_manager
 
 class TransparentWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, auto_screen_size=True):
         super().__init__()
+
+        self.auto_screen_size = auto_screen_size
+        ''' 自动为当前屏幕大小显示 '''
+
         # 设置窗口标识
         self.setWindowFlags(
             Qt.Window |
@@ -67,7 +71,17 @@ class TransparentWindow(QMainWindow):
 
     def show(self):
         # 设置窗口大小和位置
-        self.setGeometry(*global_manager.config.get_focus_screen().get_geometry())
+        screen_geometry = global_manager.config.get_focus_screen().get_geometry()
+        if self.auto_screen_size:
+            self.setGeometry(*screen_geometry)
+            pass
+        else:
+            self.setGeometry(
+                int((screen_geometry[0] + screen_geometry[2] - self.width()) / 2),
+                int((screen_geometry[1] + screen_geometry[3] - self.height()) / 2),
+                self.width(), self.height()
+            )
+            pass
         super().show()
         pass
 

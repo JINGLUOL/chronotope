@@ -36,15 +36,21 @@ class Config:
         # 监听鼠标移动
         self.mouse_x = 0
         self.mouse_y = 0
-        mouse.Listener(on_move=self._mouse_move).start()
+        self._mouse_handler()
 
         self.screens: dict[int, Screen] = get_screens()
         self.screen_root: Screen = self.screens[1]
         pass
 
-    def _mouse_move(self, x: int, y: int) -> None:
-        self.mouse_x = x
-        self.mouse_y = y
+    def _mouse_handler(self) -> None:
+        def mouse_move_work(x: int, y: int):
+            self.mouse_x = x
+            self.mouse_y = y
+            pass
+        threading.Thread(
+            target=mouse.Listener(on_move=mouse_move_work).start,
+            daemon=True,
+        ).start()
         pass
 
     def _global_thread_exception_handler(self, args: Any) -> None:

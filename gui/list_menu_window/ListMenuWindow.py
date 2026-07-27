@@ -1,4 +1,3 @@
-import inspect
 from typing import Callable, Any
 
 from PyQt5 import QtCore
@@ -131,6 +130,7 @@ class ListMenuWindow(TransparentWindow):
         pass
 
     def show(self):
+        super().show()
         self.is_locked = False
 
         x = config.mouse_x
@@ -141,7 +141,6 @@ class ListMenuWindow(TransparentWindow):
         if excess_y > 0: y -= excess_y
         self.root_list.move(x, y)
         self.root_list.show()
-        super().show()
         pass
 
     def hide(self):

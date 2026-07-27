@@ -5,7 +5,7 @@ from .GoGameWidget import GoGameWidget
 class GoGameWindow(TransparentWindow):
 
     def __init__(self):
-        super().__init__(0, 0, 0, 0)
+        super().__init__(False)
 
         go_widget = GoGameWidget(self)
         self.setGeometry(0, 0, go_widget.board_size, go_widget.board_size)

@@ -99,14 +99,11 @@ class PianoWindow(GraphicsTransWindow):
         self.black_key_border_gradient.setColorAt(0.8, QColor(184, 134, 11))  # 暗金色
         self.black_key_border_gradient.setColorAt(1, QColor(255, 223, 0))  # 亮金色
 
-        # 初始化琴键
-        self._init_piano_keys()
-
         # 钢琴面板
         self.play_model = PlayModel.NORMAL
         self.player_t_score: int = 0
         self.player_f_score: int = 0
-        self.panel = self._init_piano_panel()
+        self.panel: GraphicsTextRectItem | None = None
 
         # 练习项列表
         self.practice_items: set[GraphicsTextRectItem] = set()
@@ -116,12 +113,9 @@ class PianoWindow(GraphicsTransWindow):
         self.practice_item_pen: QPen = QPen(Qt.NoPen)
         self.practice_first_item_pen: QPen = QPen(QColor(255, 0, 0), 5)
         self.practice_item_list_len: int = 0
-
-        # 更新面板
-        self.update_panel()
         pass
 
-    def _init_piano_panel(self) -> GraphicsTextRectItem:
+    def _init_piano_panel(self):
         width = self.white_key_w * 10
         height = 30
         x = int((self.width() - width) / 2)
@@ -140,7 +134,10 @@ class PianoWindow(GraphicsTransWindow):
 
         # 初始化面板
         panel.set_pos(x, y)
-        return panel
+        self.panel = panel
+        # 更新面板
+        self.update_panel()
+        pass
 
     def _init_piano_keys(self):
         # 中央C在标准钢琴八度的位置
@@ -226,7 +223,7 @@ class PianoWindow(GraphicsTransWindow):
         pass
 
     def update_panel(self):
-        self.panel.set_text(
+        if self.panel: self.panel.set_text(
             f"模式：{self.play_model} 难度：{self.practice_level} 对：{self.player_t_score} 错：{self.player_f_score}"
         )
         pass
@@ -369,6 +366,15 @@ class PianoWindow(GraphicsTransWindow):
         if event.key() in keyboard_map:
             self.release_event(keyboard_map[event.key()])
             pass
+        pass
+
+    def show(self):
+        super().show()
+        self.scene.clear()
+        # 初始化面板
+        self._init_piano_panel()
+        # 初始化琴键
+        self._init_piano_keys()
         pass
 
     def showEvent(self, event):
